@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  anamnesis: one
+  name: MyString
+  description: MyText
+  start_date: 2025-04-05
+  end_date: 2025-04-05
+  calories: 1
+
+two:
+  user: two
+  anamnesis: two
+  name: MyString
+  description: MyText
+  start_date: 2025-04-05
+  end_date: 2025-04-05
+  calories: 1

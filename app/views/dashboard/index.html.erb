@@ -1,0 +1,61 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+  
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="bg-white p-6 rounded-lg shadow">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Meus Planos Alimentares</h2>
+        <%= link_to "Ver Todos", food_plans_path, class: "text-green-600 hover:text-green-800" %>
+      </div>
+      
+      <% if @food_plans.any? %>
+        <div class="space-y-4">
+          <% @food_plans.each do |plan| %>
+            <div class="border-b pb-4 last:border-b-0 last:pb-0">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-medium"><%= plan.name %></h3>
+                  <p class="text-sm text-gray-600"><%= plan.start_date.strftime("%d/%m/%Y") %> - <%= plan.end_date.strftime("%d/%m/%Y") %></p>
+                </div>
+                <div class="flex space-x-2">
+                  <%= link_to "Ver", food_plan_path(plan), class: "text-sm text-blue-600 hover:text-blue-800" %>
+                  <%= link_to "PDF", download_pdf_food_plan_path(plan), class: "text-sm text-red-600 hover:text-red-800" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-center py-4">Você ainda não tem planos alimentares.</p>
+        <%= link_to "Criar Plano Alimentar", new_anamnesis_path, class: "block text-center mt-2 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700" %>
+      <% end %>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Anamneses</h2>
+        <%= link_to "Nova Anamnese", new_anamnesis_path, class: "text-green-600 hover:text-green-800" %>
+      </div>
+      
+      <% if @anamneses.any? %>
+        <div class="space-y-4">
+          <% @anamneses.each do |anamnesis| %>
+            <div class="border-b pb-4 last:border-b-0 last:pb-0">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-medium">Anamnese #<%= anamnesis.id %></h3>
+                  <p class="text-sm text-gray-600"><%= anamnesis.created_at.strftime("%d/%m/%Y") %></p>
+                </div>
+                <div>
+                  <%= link_to "Ver", anamnesis_path(anamnesis), class: "text-sm text-blue-600 hover:text-blue-800" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-center py-4">Você ainda não tem anamneses.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

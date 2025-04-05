@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  meal: one
+  name: MyString
+  quantity: 1.5
+  unit: MyString
+
+two:
+  meal: two
+  name: MyString
+  quantity: 1.5
+  unit: MyString

@@ -1,0 +1,236 @@
+pt-BR:
+  activerecord:
+    errors:
+      messages:
+        record_invalid: 'A validação falhou: %{errors}'
+        restrict_dependent_destroy:
+          has_one: Não é possível excluir o registro pois existe um %{record} dependente
+          has_many: Não é possível excluir o registro pois existem %{record} dependentes
+      models:
+        user:
+          attributes:
+            email:
+              blank: não pode ficar em branco
+              invalid: não é válido
+              taken: já está em uso
+            password:
+              blank: não pode ficar em branco
+              too_short: é muito curta (mínimo de %{count} caracteres)
+            password_confirmation:
+              confirmation: não confere com a senha
+        profile:
+          attributes:
+            name:
+              blank: não pode ficar em branco
+            height:
+              not_a_number: não é um número
+              greater_than: deve ser maior que %{count}
+            weight:
+              not_a_number: não é um número
+              greater_than: deve ser maior que %{count}
+        anamnesis:
+          attributes:
+            health_data:
+              blank: não pode ficar em branco
+            dietary_preferences:
+              blank: não pode ficar em branco
+        food_plan:
+          attributes:
+            name:
+              blank: não pode ficar em branco
+            calories:
+              not_a_number: não é um número
+              greater_than: deve ser maior que %{count}
+  
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      short: "%d de %B"
+      long: "%d de %B de %Y"
+    
+    day_names: [Domingo, Segunda-feira, Terça-feira, Quarta-feira, Quinta-feira, Sexta-feira, Sábado]
+    abbr_day_names: [Dom, Seg, Ter, Qua, Qui, Sex, Sáb]
+    month_names: [~, Janeiro, Fevereiro, Março, Abril, Maio, Junho, Julho, Agosto, Setembro, Outubro, Novembro, Dezembro]
+    abbr_month_names: [~, Jan, Fev, Mar, Abr, Mai, Jun, Jul, Ago, Set, Out, Nov, Dez]
+    order:
+      - :day
+      - :month
+      - :year
+  
+  time:
+    formats:
+      default: "%d/%m/%Y %H:%M"
+      short: "%d de %B, %H:%M"
+      long: "%d de %B de %Y, %H:%M"
+    am: ''
+    pm: ''
+  
+  # Usado no helper distance_of_time_in_words
+  datetime:
+    distance_in_words:
+      half_a_minute: 'meio minuto'
+      less_than_x_seconds:
+        one: 'menos de 1 segundo'
+        other: 'menos de %{count} segundos'
+      x_seconds:
+        one: '1 segundo'
+        other: '%{count} segundos'
+      less_than_x_minutes:
+        one: 'menos de um minuto'
+        other: 'menos de %{count} minutos'
+      x_minutes:
+        one: '1 minuto'
+        other: '%{count} minutos'
+      about_x_hours:
+        one: 'aproximadamente 1 hora'
+        other: 'aproximadamente %{count} horas'
+      x_days:
+        one: '1 dia'
+        other: '%{count} dias'
+      about_x_months:
+        one: 'aproximadamente 1 mês'
+        other: 'aproximadamente %{count} meses'
+      x_months:
+        one: '1 mês'
+        other: '%{count} meses'
+      about_x_years:
+        one: 'aproximadamente 1 ano'
+        other: 'aproximadamente %{count} anos'
+      over_x_years:
+        one: 'mais de 1 ano'
+        other: 'mais de %{count} anos'
+      almost_x_years:
+        one: 'quase 1 ano'
+        other: 'quase %{count} anos'
+  
+  # Botões e mensagens comuns
+  helpers:
+    select:
+      prompt: "Por favor selecione"
+    submit:
+      create: 'Criar %{model}'
+      update: 'Atualizar %{model}'
+      submit: 'Salvar %{model}'
+  
+  # Mensagens de erro comuns
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      accepted: deve ser aceito
+      blank: não pode ficar em branco
+      confirmation: não é igual a %{attribute}
+      empty: não pode ficar vazio
+      equal_to: deve ser igual a %{count}
+      even: deve ser par
+      exclusion: não está disponível
+      greater_than: deve ser maior que %{count}
+      greater_than_or_equal_to: deve ser maior ou igual a %{count}
+      inclusion: não está incluído na lista
+      invalid: não é válido
+      less_than: deve ser menor que %{count}
+      less_than_or_equal_to: deve ser menor ou igual a %{count}
+      model_invalid: 'A validação falhou: %{errors}'
+      not_a_number: não é um número
+      not_an_integer: não é um número inteiro
+      odd: deve ser ímpar
+      other_than: deve ser diferente de %{count}
+      present: deve ficar em branco
+      required: é obrigatório(a)
+      taken: já está em uso
+      too_long:
+        one: 'é muito longo (máximo: 1 caracter)'
+        other: 'é muito longo (máximo: %{count} caracteres)'
+      too_short:
+        one: 'é muito curto (mínimo: 1 caracter)'
+        other: 'é muito curto (mínimo: %{count} caracteres)'
+      wrong_length:
+        one: não possui o tamanho esperado (1 caracter)
+        other: não possui o tamanho esperado (%{count} caracteres)
+  
+  # Mensagens específicas da aplicação
+  app:
+    common:
+      confirm: Tem certeza?
+      back: Voltar
+      edit: Editar
+      destroy: Excluir
+      show: Visualizar
+      actions: Ações
+    
+    users:
+      created: Conta criada com sucesso!
+      updated: Conta atualizada com sucesso!
+    
+    sessions:
+      created: Login realizado com sucesso!
+      destroyed: Logout realizado com sucesso!
+      invalid: Email ou senha inválidos.
+    
+    profiles:
+      updated: Perfil atualizado com sucesso!
+    
+    anamneses:
+      created: Anamnese criada com sucesso!
+      updated: Anamnese atualizada com sucesso!
+      step_saved: Etapa salva com sucesso!
+    
+    food_plans:
+      created: Plano alimentar criado com sucesso!
+      updated: Plano alimentar atualizado com sucesso!
+    
+    recipes:
+      created: Receita criada com sucesso!
+      updated: Receita atualizada com sucesso!
+
+  activerecord:
+    models:
+      user: "Usuário"
+      profile: "Perfil"
+      anamnesis: "Anamnese"
+      food_plan: "Plano Alimentar"
+      meal: "Refeição"
+      food_item: "Item Alimentar"
+      water_plan: "Plano de Hidratação"
+      recipe: "Receita"
+    
+    attributes:
+      user:
+        email: "E-mail"
+        password: "Senha"
+        password_confirmation: "Confirmação de senha"
+      profile:
+        name: "Nome"
+        date_of_birth: "Data de nascimento"
+        gender: "Gênero"
+        height: "Altura"
+        weight: "Peso"
+      anamnesis:
+        health_data: "Dados de saúde"
+        dietary_preferences: "Preferências alimentares"
+        restrictions: "Restrições alimentares"
+        lifestyle: "Estilo de vida"
+        goals: "Objetivos"
+      food_plan:
+        name: "Nome"
+        description: "Descrição"
+        start_date: "Data de início"
+        end_date: "Data de término"
+        calories: "Calorias"
+      meal:
+        name: "Nome"
+        time: "Horário"
+        objective: "Objetivo"
+        meal_type: "Tipo de refeição"
+      food_item:
+        name: "Nome"
+        quantity: "Quantidade"
+        unit: "Unidade"
+      water_plan:
+        daily_amount: "Quantidade diária"
+        recommendation: "Recomendação"
+      recipe:
+        name: "Nome"
+        preparation_time: "Tempo de preparação"
+        cooking_time: "Tempo de cozimento"
+        instructions: "Instruções"
+        nutritional_info: "Informações nutricionais"
