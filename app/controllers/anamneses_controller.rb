@@ -1,0 +1,139 @@
+class AnamnesesController < ApplicationController
+  before_action :require_login
+  before_action :set_anamnesis, only: [:show, :edit, :update, :next_step, :previous_step, :generate_plan]
+  
+  def index
+    @anamneses = current_user.anamneses
+  end
+  
+  def show
+  end
+  
+  def new
+    @anamnesis = current_user.anamneses.build
+    @step = 'health_data'
+    render "anamneses/steps/#{@step}"
+  end
+  
+  def create
+    @anamnesis = current_user.anamneses.build(anamnesis_params)
+    
+    if @anamnesis.save
+      redirect_to next_step_anamnesis_path(@anamnesis, step: 'health_data'), 
+                  notice: I18n.t('app.anamneses.created')
+    else
+      @step = 'health_data'
+      render 'anamneses/steps/health_data', status: :unprocessable_entity
+    end
+  end
+  
+  def edit
+    @step = params[:step] || 'health_data'
+    render "anamneses/steps/#{@step}"
+  end
+  
+  def update
+    if @anamnesis.update(anamnesis_params)
+      if params[:next_step].present?
+        redirect_to next_step_anamnesis_path(@anamnesis, step: params[:step]), 
+                    notice: I18n.t('app.anamneses.updated')
+      else
+        redirect_to anamnesis_path(@anamnesis), 
+                    notice: I18n.t('app.anamneses.updated')
+      end
+    else
+      @step = params[:step] || 'health_data'
+      render "anamneses/steps/#{@step}", status: :unprocessable_entity
+    end
+  end
+  
+  def next_step
+    current_step = params[:step]
+    @next_step = next_step_for(current_step)
+    
+    if @next_step == 'complete'
+      redirect_to anamnesis_path(@anamnesis)
+    else
+      redirect_to edit_anamnesis_path(@anamnesis, step: @next_step)
+    end
+  end
+  
+  def previous_step
+    current_step = params[:step]
+    @previous_step = previous_step_for(current_step)
+    
+    redirect_to edit_anamnesis_path(@anamnesis, step: @previous_step)
+  end
+  
+  def generate_plan
+    # Usar o serviço de IA para gerar o plano nutricional
+    generator = AiNutritionPlanGenerator.new(@anamnesis)
+    @food_plan = generator.generate_plan
+    
+    if @food_plan.persisted?
+      redirect_to food_plan_path(@food_plan), notice: I18n.t('app.food_plans.created')
+    else
+      redirect_to anamnesis_path(@anamnesis), alert: I18n.t('app.food_plans.create_error')
+    end
+  end
+  
+  private
+  
+  def set_anamnesis
+    @anamnesis = current_user.anamneses.find(params[:id])
+  end
+  
+  def anamnesis_params
+    # Permitir diferentes parâmetros dependendo da etapa atual
+    case params[:step]
+    when 'health_data'
+      params.require(:anamnesis).permit(
+        health_data: [:height, :weight, :date_of_birth, :gender, :blood_type, :allergies, :medical_conditions, :medications]
+      )
+    when 'dietary_preferences'
+      params.require(:anamnesis).permit(
+        dietary_preferences: [:favorite_foods, :disliked_foods, :meal_frequency, :diet_type]
+      )
+    when 'restrictions'
+      params.require(:anamnesis).permit(
+        restrictions: [:food_allergies, :intolerances, :medical_restrictions]
+      )
+    when 'lifestyle'
+      params.require(:anamnesis).permit(
+        lifestyle: [:activity_level, :exercise_frequency, :occupation, :stress_level, :sleep_hours]
+      )
+    when 'goals'
+      params.require(:anamnesis).permit(
+        goals: [:weight_goal, :health_objectives, :target_date, :specific_needs]
+      )
+    else
+      params.require(:anamnesis).permit
+    end
+  end
+  
+  def next_step_for(current_step)
+    steps = ['health_data', 'dietary_preferences', 'restrictions', 'lifestyle', 'goals', 'complete']
+    current_index = steps.index(current_step)
+    
+    return 'complete' unless current_index
+    
+    next_index = current_index + 1
+    next_index >= steps.length ? 'complete' : steps[next_index]
+  end
+  
+  def previous_step_for(current_step)
+    steps = ['health_data', 'dietary_preferences', 'restrictions', 'lifestyle', 'goals']
+    current_index = steps.index(current_step)
+    
+    return 'health_data' unless current_index
+    
+    previous_index = current_index - 1
+    previous_index < 0 ? 'health_data' : steps[previous_index]
+  end
+  
+  def require_login
+    unless current_user
+      redirect_to login_path, alert: I18n.t('app.sessions.login_required')
+    end
+  end
+end

@@ -1,0 +1,40 @@
+<div class="max-w-4xl mx-auto my-8 px-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Minhas Anamneses</h1>
+    <%= link_to "Nova Anamnese", new_anamnesis_path, class: "px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition" %>
+  </div>
+
+  <% if @anamneses.empty? %>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+      <p class="text-gray-600 mb-4">Você ainda não possui nenhuma anamnese.</p>
+      <p class="text-gray-600">Uma anamnese é o primeiro passo para criar seu plano nutricional personalizado.</p>
+    </div>
+  <% else %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <% @anamneses.each do |anamnesis| %>
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+          <div class="p-5">
+            <h3 class="text-lg font-semibold mb-2">Anamnese #<%= anamnesis.id %></h3>
+            <p class="text-gray-600 mb-2">Criada em: <%= l anamnesis.created_at, format: :short %></p>
+            
+            <div class="mt-4 space-y-2">
+              <% if anamnesis.bmi %>
+                <p class="text-sm">IMC: <span class="font-medium"><%= anamnesis.bmi %></span></p>
+              <% end %>
+              
+              <% if anamnesis.calculate_daily_calories %>
+                <p class="text-sm">Calorias diárias: <span class="font-medium"><%= anamnesis.calculate_daily_calories %> kcal</span></p>
+              <% end %>
+            </div>
+            
+            <div class="mt-4 flex space-x-2">
+              <%= link_to "Ver Detalhes", anamnesis_path(anamnesis), class: "px-3 py-1 bg-blue-100 text-blue-800 rounded text-sm" %>
+              <%= link_to "Editar", edit_anamnesis_path(anamnesis), class: "px-3 py-1 bg-gray-100 text-gray-800 rounded text-sm" %>
+              <%= link_to "Gerar Plano", generate_plan_anamnesis_path(anamnesis), method: :post, class: "px-3 py-1 bg-green-100 text-green-800 rounded text-sm" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,48 @@
+<div class="max-w-4xl mx-auto my-8 px-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Meus Planos Alimentares</h1>
+    <%= link_to "Criar Novo Plano", new_food_plan_path, class: "px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition" %>
+  </div>
+
+  <% if @food_plans.empty? %>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+      <p class="text-gray-600 mb-4">Você ainda não possui nenhum plano alimentar.</p>
+      <p class="text-gray-600">Crie uma anamnese primeiro para poder gerar seu plano alimentar personalizado.</p>
+      <%= link_to "Criar Anamnese", new_anamnesis_path, class: "mt-4 inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition" %>
+    </div>
+  <% else %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <% @food_plans.each do |food_plan| %>
+        <% validity_status = food_plan.validity_status %>
+        <div class="bg-white rounded-lg shadow overflow-hidden <%= validity_status == :expired ? 'border-l-4 border-red-500' : (validity_status == :expiring_soon ? 'border-l-4 border-yellow-500' : '') %>">
+          <div class="p-5">
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-semibold mb-2"><%= food_plan.name %></h3>
+              <% case validity_status %>
+              <% when :expired %>
+                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Expirado</span>
+              <% when :expiring_soon %>
+                <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Expira em <%= food_plan.days_remaining %> dias</span>
+              <% else %>
+                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Válido</span>
+              <% end %>
+            </div>
+            
+            <p class="text-gray-600 mb-2"><%= truncate(food_plan.description, length: 100) %></p>
+            
+            <div class="mt-2 space-y-1 text-sm text-gray-600">
+              <p>Período: <%= l food_plan.start_date, format: :short %> - <%= l food_plan.end_date, format: :short %></p>
+              <p>Calorias: <%= food_plan.calories %> kcal/dia</p>
+              <p>Refeições: <%= food_plan.meals.count %></p>
+            </div>
+            
+            <div class="mt-4 flex space-x-2">
+              <%= link_to "Ver Detalhes", food_plan_path(food_plan), class: "px-3 py-1 bg-blue-100 text-blue-800 rounded text-sm" %>
+              <%= link_to "Gerar PDF", generate_pdf_food_plan_path(food_plan), method: :post, class: "px-3 py-1 bg-green-100 text-green-800 rounded text-sm" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

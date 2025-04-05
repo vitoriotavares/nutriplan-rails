@@ -1,0 +1,21 @@
+<div class="mb-8">
+  <div class="flex justify-between mb-2">
+    <% steps = ['health_data', 'dietary_preferences', 'restrictions', 'lifestyle', 'goals'] %>
+    <% steps.each_with_index do |step_name, index| %>
+      <div class="flex flex-col items-center">
+        <div class="<%= @step == step_name ? 'bg-green-600' : (index < steps.index(@step) ? 'bg-green-400' : 'bg-gray-300') %> rounded-full h-8 w-8 flex items-center justify-center text-white font-medium">
+          <%= index + 1 %>
+        </div>
+        <span class="text-xs mt-1 text-center <%= @step == step_name ? 'text-green-600 font-medium' : 'text-gray-500' %>">
+          <%= t("app.anamneses.steps.#{step_name}") %>
+        </span>
+      </div>
+      
+      <% if index < steps.length - 1 %>
+        <div class="flex-1 flex items-center">
+          <div class="h-1 w-full <%= index < steps.index(@step) ? 'bg-green-400' : 'bg-gray-300' %>"></div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

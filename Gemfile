@@ -52,6 +52,9 @@ gem "view_component", "~> 3.11"
 # Authorization
 gem "pundit", "~> 2.3"
 
+# OpenAI API
+gem "ruby-openai", "~> 6.3"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
@@ -61,6 +64,9 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Carregar variáveis de ambiente de arquivos .env
+  gem "dotenv-rails"
 end
 
 group :development do

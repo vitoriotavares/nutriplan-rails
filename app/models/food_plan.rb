@@ -32,6 +32,25 @@ class FoodPlan < ApplicationRecord
     items
   end
   
+  def valid_plan?
+    end_date >= Date.current
+  end
+  
+  def days_remaining
+    return 0 unless valid_plan?
+    (end_date - Date.current).to_i
+  end
+  
+  def validity_status
+    if !valid_plan?
+      :expired
+    elsif days_remaining <= 7
+      :expiring_soon
+    else
+      :valid
+    end
+  end
+  
   private
   
   def end_date_after_start_date

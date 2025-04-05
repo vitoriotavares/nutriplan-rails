@@ -1,0 +1,361 @@
+<div class="max-w-4xl mx-auto my-8 px-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Detalhes da Anamnese</h1>
+    <div class="flex space-x-2">
+      <%= link_to "Voltar", anamneses_path, class: "px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition" %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Dados de Saúde -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4 text-green-700">Dados de Saúde</h3>
+          <div class="space-y-2">
+            <% if @anamnesis.health_data %>
+              <p><span class="font-medium">Altura:</span> <%= @anamnesis.health_data['height'] %> cm</p>
+              <p><span class="font-medium">Peso:</span> <%= @anamnesis.health_data['weight'] %> kg</p>
+              <p><span class="font-medium">Data de Nascimento:</span> <%= Date.parse(@anamnesis.health_data['date_of_birth']).strftime('%d/%m/%Y') rescue @anamnesis.health_data['date_of_birth'] %></p>
+              <p>
+                <span class="font-medium">Gênero:</span>
+                <% genders = {
+                  'male' => 'Masculino',
+                  'female' => 'Feminino',
+                  'other' => 'Outro',
+                  'prefer_not_to_say' => 'Prefiro não informar'
+                } %>
+                <%= genders[@anamnesis.health_data['gender']] || @anamnesis.health_data['gender'] %>
+              </p>
+              <p><span class="font-medium">Tipo Sanguíneo:</span> <%= @anamnesis.health_data['blood_type'] %></p>
+              <p><span class="font-medium">Alergias:</span> <%= @anamnesis.health_data['allergies'] %></p>
+              <p><span class="font-medium">Condições Médicas:</span> <%= @anamnesis.health_data['medical_conditions'] || "Nenhuma informada" %></p>
+              <p><span class="font-medium">Medicamentos:</span> <%= @anamnesis.health_data['medications'] || "Nenhum informado" %></p>
+            <% else %>
+              <p class="text-gray-500">Dados de saúde não preenchidos</p>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Preferências Alimentares -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4 text-green-700">Preferências Alimentares</h3>
+          <div class="space-y-2">
+            <% if @anamnesis.dietary_preferences %>
+              <p><span class="font-medium">Alimentos Favoritos:</span> <%= @anamnesis.dietary_preferences['favorite_foods'] %></p>
+              <p><span class="font-medium">Alimentos que não gosta:</span> <%= @anamnesis.dietary_preferences['disliked_foods'] %></p>
+              <p>
+                <span class="font-medium">Frequência de Refeições:</span>
+                <% meal_frequencies = {
+                  'two_meals' => 'Duas refeições por dia',
+                  'three_meals' => 'Três refeições por dia',
+                  'four_meals' => 'Quatro refeições por dia',
+                  'five_meals' => 'Cinco refeições por dia',
+                  'six_meals' => 'Seis refeições por dia',
+                  '3' => '3 refeições por dia',
+                  '4' => '4 refeições por dia',
+                  '5' => '5 refeições por dia',
+                  '6' => '6 refeições por dia',
+                  '7+' => 'Mais de 6 refeições por dia',
+                  'other' => 'Outro'
+                } %>
+                <%= meal_frequencies[@anamnesis.dietary_preferences['meal_frequency']] || @anamnesis.dietary_preferences['meal_frequency'] %>
+              </p>
+              <p>
+                <span class="font-medium">Tipo de Dieta:</span>
+                <% diet_types = {
+                  'omnivore' => 'Onívoro',
+                  'vegetarian' => 'Vegetariano',
+                  'vegan' => 'Vegano',
+                  'pescatarian' => 'Pescetariano',
+                  'paleo' => 'Paleolítica',
+                  'keto' => 'Cetogênica',
+                  'low_carb' => 'Baixo Carboidrato',
+                  'high_protein' => 'Alta Proteína',
+                  'mediterranean' => 'Mediterrânea',
+                  'dash' => 'DASH',
+                  'traditional' => 'Tradicional (sem restrições)',
+                  'gluten_free' => 'Sem Glúten',
+                  'lactose_free' => 'Sem Lactose',
+                  'other' => 'Outro'
+                } %>
+                <%= diet_types[@anamnesis.dietary_preferences['diet_type']] || @anamnesis.dietary_preferences['diet_type'] %>
+              </p>
+            <% else %>
+              <p class="text-gray-500">Preferências alimentares não preenchidas</p>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Restrições -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4 text-green-700">Restrições</h3>
+          <div class="space-y-2">
+            <% if @anamnesis.restrictions %>
+              <p><span class="font-medium">Alergias Alimentares:</span> <%= @anamnesis.restrictions['food_allergies'] %></p>
+              <p><span class="font-medium">Intolerâncias:</span> <%= @anamnesis.restrictions['intolerances'] %></p>
+              <p><span class="font-medium">Restrições Médicas:</span> <%= @anamnesis.restrictions['medical_restrictions'] %></p>
+            <% else %>
+              <p class="text-gray-500">Restrições não preenchidas</p>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Objetivos -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4 text-green-700">Objetivos</h3>
+          <div class="space-y-2">
+            <% if @anamnesis.goals %>
+              <p>
+                <span class="font-medium">Objetivo de Peso:</span>
+                <% weight_goals = {
+                  'lose' => 'Perder peso',
+                  'maintain' => 'Manter peso',
+                  'gain' => 'Ganhar peso',
+                  'gain_muscle' => 'Ganhar massa muscular',
+                  'lose_weight' => 'Perder peso',
+                  'maintain_weight' => 'Manter peso',
+                  'gain_weight' => 'Ganhar peso',
+                  'other' => 'Outro'
+                } %>
+                <%= weight_goals[@anamnesis.goals['weight_goal']] || @anamnesis.goals['weight_goal'] %>
+              </p>
+              <p><span class="font-medium">Objetivos de Saúde:</span> <%= @anamnesis.goals['health_objectives'] %></p>
+              <p>
+                <span class="font-medium">Data Alvo:</span> 
+                <% if @anamnesis.goals['target_date'].present? %>
+                  <% target_date = Date.parse(@anamnesis.goals['target_date']) rescue nil %>
+                  <% if target_date %>
+                    <%= target_date.strftime('%d/%m/%Y') %>
+                    <% days_remaining = (target_date - Date.current).to_i %>
+                    <% if days_remaining > 0 %>
+                      <span class="inline-flex items-center ml-2 px-2 py-0.5 rounded text-xs font-medium 
+                        <%= days_remaining <= 7 ? 'bg-red-100 text-red-800' : 
+                           days_remaining <= 30 ? 'bg-yellow-100 text-yellow-800' : 
+                           'bg-green-100 text-green-800' %>">
+                        <%= days_remaining %> dias restantes
+                      </span>
+                    <% elsif days_remaining == 0 %>
+                      <span class="inline-flex items-center ml-2 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                        Hoje!
+                      </span>
+                    <% else %>
+                      <span class="inline-flex items-center ml-2 px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                        Prazo expirado
+                      </span>
+                    <% end %>
+                  <% else %>
+                    <%= @anamnesis.goals['target_date'] %>
+                  <% end %>
+                <% else %>
+                  <span class="text-gray-500">Não definida</span>
+                <% end %>
+              </p>
+              <p><span class="font-medium">Necessidades Específicas:</span> <%= @anamnesis.goals['specific_needs'] %></p>
+            <% else %>
+              <p class="text-gray-500">Objetivos não preenchidos</p>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Estilo de Vida -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4 text-green-700">Estilo de Vida</h3>
+          <div class="space-y-2">
+            <% if @anamnesis.lifestyle %>
+              <p>
+                <span class="font-medium">Nível de Atividade:</span> 
+                <% activity_levels = {
+                  'sedentary' => 'Sedentário',
+                  'lightly_active' => 'Levemente Ativo',
+                  'moderately_active' => 'Moderadamente Ativo',
+                  'very_active' => 'Muito Ativo',
+                  'extra_active' => 'Extremamente Ativo'
+                } %>
+                <%= activity_levels[@anamnesis.lifestyle['activity_level']] || @anamnesis.lifestyle['activity_level'] %>
+              </p>
+              <p>
+                <span class="font-medium">Frequência de Exercícios:</span>
+                <% exercise_frequencies = {
+                  'never' => 'Nunca',
+                  'rarely' => 'Raramente',
+                  'sometimes' => 'Às vezes',
+                  'often' => 'Frequentemente',
+                  'daily' => 'Diariamente',
+                  '1-2_per_week' => '1-2 vezes por semana',
+                  '3-4_per_week' => '3-4 vezes por semana',
+                  '5-6_per_week' => '5-6 vezes por semana'
+                } %>
+                <%= exercise_frequencies[@anamnesis.lifestyle['exercise_frequency']] || @anamnesis.lifestyle['exercise_frequency'] %>
+              </p>
+              <p><span class="font-medium">Ocupação:</span> <%= @anamnesis.lifestyle['occupation'] %></p>
+              <p>
+                <span class="font-medium">Nível de Estresse:</span>
+                <% stress_levels = {
+                  'low' => 'Baixo',
+                  'moderate' => 'Moderado',
+                  'high' => 'Alto',
+                  'very_high' => 'Muito Alto'
+                } %>
+                <%= stress_levels[@anamnesis.lifestyle['stress_level']] || @anamnesis.lifestyle['stress_level'] %>
+              </p>
+              <p>
+                <span class="font-medium">Horas de Sono:</span>
+                <% sleep_hours = {
+                  '<5' => 'Menos de 5 horas',
+                  '5-6' => '5-6 horas',
+                  '7-8' => '7-8 horas',
+                  '>8' => 'Mais de 8 horas'
+                } %>
+                <%= sleep_hours[@anamnesis.lifestyle['sleep_hours']] || @anamnesis.lifestyle['sleep_hours'] %>
+              </p>
+            <% else %>
+              <p class="text-gray-500">Estilo de vida não preenchido</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cálculos e Métricas -->
+  <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+    <div class="p-6">
+      <h3 class="text-lg font-semibold mb-4 text-green-700">Métricas Calculadas</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-green-50 p-4 rounded-lg">
+          <h4 class="font-medium text-green-800 mb-1">IMC</h4>
+          <p class="text-2xl font-bold"><%= @anamnesis.bmi || "N/A" %></p>
+          <% if @anamnesis.bmi %>
+            <p class="text-sm text-green-700 mt-1">
+              <%= 
+                case @anamnesis.bmi
+                when 0..18.5
+                  "Abaixo do peso"
+                when 18.5..24.9
+                  "Peso normal"
+                when 25..29.9
+                  "Sobrepeso"
+                when 30..34.9
+                  "Obesidade grau I"
+                when 35..39.9
+                  "Obesidade grau II"
+                else
+                  "Obesidade grau III"
+                end
+              %>
+            </p>
+          <% end %>
+        </div>
+
+        <div class="bg-green-50 p-4 rounded-lg">
+          <h4 class="font-medium text-green-800 mb-1">Taxa Metabólica Basal</h4>
+          <p class="text-2xl font-bold"><%= @anamnesis.calculate_bmr&.round || "N/A" %> kcal</p>
+          <p class="text-sm text-green-700 mt-1">Calorias necessárias em repouso</p>
+        </div>
+
+        <div class="bg-green-50 p-4 rounded-lg">
+          <h4 class="font-medium text-green-800 mb-1">Calorias Diárias</h4>
+          <p class="text-2xl font-bold"><%= @anamnesis.calculate_daily_calories || "N/A" %> kcal</p>
+          <p class="text-sm text-green-700 mt-1">Com base no seu nível de atividade</p>
+        </div>
+      </div>
+
+      <% if @anamnesis.calculate_macros %>
+        <div class="mt-6">
+          <h4 class="font-medium text-green-800 mb-3">Distribuição de Macronutrientes Recomendada</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <% macros = @anamnesis.calculate_macros %>
+            <div class="bg-blue-50 p-4 rounded-lg">
+              <h5 class="font-medium text-blue-800 mb-1">Proteínas</h5>
+              <p class="text-xl font-bold"><%= macros[:protein] %> g</p>
+              <p class="text-sm text-blue-700 mt-1"><%= macros[:protein_percentage] %>% das calorias</p>
+            </div>
+
+            <div class="bg-yellow-50 p-4 rounded-lg">
+              <h5 class="font-medium text-yellow-800 mb-1">Gorduras</h5>
+              <p class="text-xl font-bold"><%= macros[:fat] %> g</p>
+              <p class="text-sm text-yellow-700 mt-1"><%= macros[:fat_percentage] %>% das calorias</p>
+            </div>
+
+            <div class="bg-purple-50 p-4 rounded-lg">
+              <h5 class="font-medium text-purple-800 mb-1">Carboidratos</h5>
+              <p class="text-xl font-bold"><%= macros[:carbs] %> g</p>
+              <p class="text-sm text-purple-700 mt-1"><%= macros[:carb_percentage] %>% das calorias</p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Botão para gerar plano -->
+  <div class="mt-6 bg-white rounded-lg shadow overflow-hidden">
+    <div class="p-6">
+      <div class="flex flex-col items-center text-center">
+        <h3 class="text-xl font-semibold mb-3 text-green-700">Plano Nutricional Personalizado</h3>
+        <p class="text-gray-600 mb-4 max-w-2xl">
+          Com base nos dados da sua anamnese, nosso sistema pode gerar um plano nutricional personalizado 
+          adaptado às suas necessidades, preferências e objetivos.
+        </p>
+        
+        <% if @anamnesis.food_plans.exists? %>
+          <div class="mb-4">
+            <p class="text-green-600 font-medium mb-2">Você já possui <%= @anamnesis.food_plans.count %> plano(s) nutricional(is) gerado(s) a partir desta anamnese.</p>
+            <%= link_to "Ver Meus Planos", food_plans_path, class: "text-blue-600 hover:text-blue-800 underline" %>
+          </div>
+        <% end %>
+        
+        <%= form_with url: generate_plan_anamnesis_path(@anamnesis), method: :post, data: { turbo: true }, class: "w-full flex justify-center" do |f| %>
+          <button type="submit" id="generate-plan-btn" class="group relative inline-flex items-center justify-center px-8 py-3 bg-green-600 text-white font-medium rounded-lg overflow-hidden hover:bg-green-700 transition-all duration-300 shadow-md">
+            <span class="relative z-10 flex items-center" id="btn-content">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              Gerar Novo Plano Nutricional
+            </span>
+            <span class="hidden relative z-10 flex items-center" id="btn-loading">
+              <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Gerando Plano...
+            </span>
+            <span class="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+          </button>
+        <% end %>
+        
+        <p class="text-xs text-gray-500 mt-3">
+          Este processo utiliza inteligência artificial para analisar seus dados e criar um plano personalizado.
+        </p>
+        
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form[data-turbo="true"]');
+            const button = document.getElementById('generate-plan-btn');
+            const btnContent = document.getElementById('btn-content');
+            const btnLoading = document.getElementById('btn-loading');
+            
+            if (form) {
+              form.addEventListener('submit', function() {
+                // Desabilitar o botão
+                button.disabled = true;
+                button.classList.add('opacity-75', 'cursor-not-allowed');
+                
+                // Mostrar o indicador de carregamento
+                btnContent.classList.add('hidden');
+                btnLoading.classList.remove('hidden');
+                
+                // Adicionar mensagem de feedback
+                const feedbackMsg = document.createElement('p');
+                feedbackMsg.className = 'text-sm text-green-600 mt-3 animate-pulse';
+                feedbackMsg.textContent = 'Gerando plano nutricional personalizado. Este processo pode levar alguns segundos...';
+                form.parentNode.insertBefore(feedbackMsg, form.nextSibling);
+              });
+            }
+          });
+        </script>
+      </div>
+    </div>
+  </div>
+</div>
