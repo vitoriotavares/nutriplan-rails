@@ -544,6 +544,44 @@ class AiNutritionPlanGenerator
     lifestyle = @anamnesis.lifestyle || {}
     goals = @anamnesis.goals || {}
     
+    # Traduções para valores em inglês
+    activity_level_translations = {
+      "sedentary" => "Sedentário",
+      "lightly_active" => "Levemente ativo",
+      "moderately_active" => "Moderadamente ativo",
+      "very_active" => "Muito ativo",
+      "extra_active" => "Extremamente ativo"
+    }
+    
+    exercise_frequency_translations = {
+      "none" => "Nenhuma",
+      "1-2_per_week" => "1-2 vezes por semana",
+      "3-4_per_week" => "3-4 vezes por semana",
+      "5-6_per_week" => "5-6 vezes por semana",
+      "daily" => "Diariamente"
+    }
+    
+    diet_type_translations = {
+      "omnivore" => "Onívora",
+      "vegetarian" => "Vegetariana",
+      "vegan" => "Vegana",
+      "pescatarian" => "Pescetariana",
+      "paleo" => "Paleolítica",
+      "keto" => "Cetogênica",
+      "gluten_free" => "Sem glúten",
+      "lactose_free" => "Sem lactose",
+      "low_carb" => "Baixo carboidrato",
+      "mediterranean" => "Mediterrânea"
+    }
+    
+    weight_goal_translations = {
+      "lose_weight" => "Perda de peso",
+      "gain_weight" => "Ganho de peso",
+      "maintain_weight" => "Manutenção de peso",
+      "gain_muscle" => "Ganho de massa muscular",
+      "improve_health" => "Melhora da saúde geral"
+    }
+    
     # Calcular IMC e classificação
     bmi = @anamnesis.bmi
     bmi_classification = if bmi
@@ -607,15 +645,25 @@ class AiNutritionPlanGenerator
       assessment << "Preferências Alimentares:"
       assessment << "- Alimentos favoritos: #{dietary_preferences['favorite_foods'] || 'Não informados'}"
       assessment << "- Alimentos não preferidos: #{dietary_preferences['disliked_foods'] || 'Não informados'}"
-      assessment << "- Tipo de dieta: #{dietary_preferences['diet_type'] || 'Tradicional'}"
+      
+      diet_type = dietary_preferences['diet_type']
+      translated_diet_type = diet_type.present? ? (diet_type_translations[diet_type] || diet_type) : 'Tradicional'
+      assessment << "- Tipo de dieta: #{translated_diet_type}"
     end
     
     # Estilo de vida
     if lifestyle.present?
       assessment << ""
       assessment << "Estilo de Vida:"
-      assessment << "- Nível de atividade física: #{lifestyle['activity_level'] || 'Não informado'}"
-      assessment << "- Frequência de exercícios: #{lifestyle['exercise_frequency'] || 'Não informada'}"
+      
+      activity_level = lifestyle['activity_level']
+      translated_activity_level = activity_level.present? ? (activity_level_translations[activity_level] || activity_level) : 'Não informado'
+      assessment << "- Nível de atividade física: #{translated_activity_level}"
+      
+      exercise_frequency = lifestyle['exercise_frequency']
+      translated_exercise_frequency = exercise_frequency.present? ? (exercise_frequency_translations[exercise_frequency] || exercise_frequency) : 'Não informada'
+      assessment << "- Frequência de exercícios: #{translated_exercise_frequency}"
+      
       assessment << "- Ocupação: #{lifestyle['occupation'] || 'Não informada'}"
     end
     
@@ -623,7 +671,11 @@ class AiNutritionPlanGenerator
     if goals.present?
       assessment << ""
       assessment << "Objetivos:"
-      assessment << "- Objetivo de peso: #{goals['weight_goal'] || 'Manutenção'}"
+      
+      weight_goal = goals['weight_goal']
+      translated_weight_goal = weight_goal.present? ? (weight_goal_translations[weight_goal] || weight_goal) : 'Manutenção'
+      assessment << "- Objetivo de peso: #{translated_weight_goal}"
+      
       assessment << "- Objetivos de saúde: #{goals['health_objectives'] || 'Melhora geral da saúde'}"
       
       if goals['target_date'].present?
