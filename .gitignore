@@ -5,6 +5,8 @@
 # `$XDG_CONFIG_HOME/git/ignore` or `~/.config/git/ignore`
 
 # Ignorar arquivos de ambiente
+.env
+.env.example
 
 
 # Ignore all logfiles and tempfiles.
