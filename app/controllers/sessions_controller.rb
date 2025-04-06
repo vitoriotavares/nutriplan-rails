@@ -1,6 +1,9 @@
 class SessionsController < ApplicationController
+  skip_before_action :authenticate_user!, except: [:destroy]
+  
   def new
     # Página de login
+    redirect_to dashboard_path if logged_in?
   end
   
   def create
