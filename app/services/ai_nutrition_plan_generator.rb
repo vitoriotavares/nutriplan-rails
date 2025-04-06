@@ -28,6 +28,9 @@ class AiNutritionPlanGenerator
     # Criar plano de hidratação
     create_water_plan(food_plan)
     
+    # Gerar substitutos para os itens alimentares
+    generate_substitutes_for_food_plan(food_plan)
+    
     # Retornar o plano alimentar completo
     Rails.logger.info("Plano alimentar gerado com sucesso")
     food_plan
@@ -144,6 +147,8 @@ class AiNutritionPlanGenerator
     - Forneça quantidades precisas para cada alimento
     - Use unidades de medida claras (g, ml, colher de sopa, etc.)
     - Não inclua comentários ou texto adicional fora do formato JSON
+    - Priorize alimentos da culinária brasileira e ingredientes facilmente encontrados no Brasil
+    - Considere as variações regionais brasileiras e alimentos sazonais locais
     FORMAT
     
     # Montar o prompt completo
@@ -175,7 +180,7 @@ class AiNutritionPlanGenerator
         parameters: {
           model: "gpt-4o", # Usando o modelo mais recente da OpenAI
           messages: [
-            { role: "system", content: "Você é um nutricionista especializado em criar planos alimentares personalizados. Responda no formato JSON com a estrutura: { \"meals\": [ { \"name\": \"Nome da Refeição\", \"time\": \"HH:MM\", \"objective\": \"Objetivo\", \"foods\": [ { \"name\": \"Nome do Alimento\", \"quantity\": \"Quantidade\", \"unit\": \"Unidade\" } ] } ] }" },
+            { role: "system", content: "Você é um nutricionista especializado em criar planos alimentares personalizados com foco na culinária brasileira. Priorize alimentos típicos do Brasil e receitas regionais brasileiras sempre que possível. Responda no formato JSON com a estrutura: { \"meals\": [ { \"name\": \"Nome da Refeição\", \"time\": \"HH:MM\", \"objective\": \"Objetivo\", \"foods\": [ { \"name\": \"Nome do Alimento\", \"quantity\": \"Quantidade\", \"unit\": \"Unidade\" } ] } ] }" },
             { role: "user", content: prompt }
           ],
           temperature: 0.7,
@@ -544,44 +549,6 @@ class AiNutritionPlanGenerator
     lifestyle = @anamnesis.lifestyle || {}
     goals = @anamnesis.goals || {}
     
-    # Traduções para valores em inglês
-    activity_level_translations = {
-      "sedentary" => "Sedentário",
-      "lightly_active" => "Levemente ativo",
-      "moderately_active" => "Moderadamente ativo",
-      "very_active" => "Muito ativo",
-      "extra_active" => "Extremamente ativo"
-    }
-    
-    exercise_frequency_translations = {
-      "none" => "Nenhuma",
-      "1-2_per_week" => "1-2 vezes por semana",
-      "3-4_per_week" => "3-4 vezes por semana",
-      "5-6_per_week" => "5-6 vezes por semana",
-      "daily" => "Diariamente"
-    }
-    
-    diet_type_translations = {
-      "omnivore" => "Onívora",
-      "vegetarian" => "Vegetariana",
-      "vegan" => "Vegana",
-      "pescatarian" => "Pescetariana",
-      "paleo" => "Paleolítica",
-      "keto" => "Cetogênica",
-      "gluten_free" => "Sem glúten",
-      "lactose_free" => "Sem lactose",
-      "low_carb" => "Baixo carboidrato",
-      "mediterranean" => "Mediterrânea"
-    }
-    
-    weight_goal_translations = {
-      "lose_weight" => "Perda de peso",
-      "gain_weight" => "Ganho de peso",
-      "maintain_weight" => "Manutenção de peso",
-      "gain_muscle" => "Ganho de massa muscular",
-      "improve_health" => "Melhora da saúde geral"
-    }
-    
     # Calcular IMC e classificação
     bmi = @anamnesis.bmi
     bmi_classification = if bmi
@@ -644,26 +611,16 @@ class AiNutritionPlanGenerator
       assessment << ""
       assessment << "Preferências Alimentares:"
       assessment << "- Alimentos favoritos: #{dietary_preferences['favorite_foods'] || 'Não informados'}"
-      assessment << "- Alimentos não preferidos: #{dietary_preferences['disliked_foods'] || 'Não informados'}"
-      
-      diet_type = dietary_preferences['diet_type']
-      translated_diet_type = diet_type.present? ? (diet_type_translations[diet_type] || diet_type) : 'Tradicional'
-      assessment << "- Tipo de dieta: #{translated_diet_type}"
+      assessment << "- Alimentos que não gosta: #{dietary_preferences['disliked_foods'] || 'Não informados'}"
+      assessment << "- Tipo de dieta: #{dietary_preferences['diet_type'] || 'Tradicional'}"
     end
     
     # Estilo de vida
     if lifestyle.present?
       assessment << ""
       assessment << "Estilo de Vida:"
-      
-      activity_level = lifestyle['activity_level']
-      translated_activity_level = activity_level.present? ? (activity_level_translations[activity_level] || activity_level) : 'Não informado'
-      assessment << "- Nível de atividade física: #{translated_activity_level}"
-      
-      exercise_frequency = lifestyle['exercise_frequency']
-      translated_exercise_frequency = exercise_frequency.present? ? (exercise_frequency_translations[exercise_frequency] || exercise_frequency) : 'Não informada'
-      assessment << "- Frequência de exercícios: #{translated_exercise_frequency}"
-      
+      assessment << "- Nível de atividade física: #{lifestyle['activity_level'] || 'Não informado'}"
+      assessment << "- Frequência de exercícios: #{lifestyle['exercise_frequency'] || 'Não informada'}"
       assessment << "- Ocupação: #{lifestyle['occupation'] || 'Não informada'}"
     end
     
@@ -671,11 +628,7 @@ class AiNutritionPlanGenerator
     if goals.present?
       assessment << ""
       assessment << "Objetivos:"
-      
-      weight_goal = goals['weight_goal']
-      translated_weight_goal = weight_goal.present? ? (weight_goal_translations[weight_goal] || weight_goal) : 'Manutenção'
-      assessment << "- Objetivo de peso: #{translated_weight_goal}"
-      
+      assessment << "- Objetivo de peso: #{goals['weight_goal'] || 'Manutenção'}"
       assessment << "- Objetivos de saúde: #{goals['health_objectives'] || 'Melhora geral da saúde'}"
       
       if goals['target_date'].present?
@@ -840,85 +793,52 @@ class AiNutritionPlanGenerator
     
     # Adicionar proteína
     if has_lactose_restriction
-      meal.food_items.create(name: "Ovos mexidos", quantity: "2", unit: "unidades")
+      protein_item = meal.food_items.create(name: "Ovos mexidos", quantity: "2", unit: "unidades")
     else
-      meal.food_items.create(name: "Iogurte natural", quantity: "1", unit: "pote pequeno")
+      protein_item = meal.food_items.create(name: "Iogurte natural", quantity: "1", unit: "pote pequeno")
     end
     
     # Adicionar carboidrato
     if has_gluten_restriction
-      meal.food_items.create(name: "Aveia sem glúten", quantity: "3", unit: "colheres de sopa")
+      carb_item = meal.food_items.create(name: "Aveia sem glúten", quantity: "3", unit: "colheres de sopa")
     else
-      meal.food_items.create(name: "Pão integral", quantity: "2", unit: "fatias")
+      carb_item = meal.food_items.create(name: "Pão integral", quantity: "2", unit: "fatias")
     end
     
     # Adicionar fruta
-    meal.food_items.create(name: "Banana", quantity: "1", unit: "unidade")
-    
-    # Adicionar gordura boa
-    meal.food_items.create(name: "Abacate", quantity: "1/4", unit: "unidade")
-    
-    # Adicionar bebida
-    if has_lactose_restriction
-      meal.food_items.create(name: "Chá verde", quantity: "1", unit: "xícara")
-    else
-      meal.food_items.create(name: "Café com leite", quantity: "1", unit: "xícara")
-    end
-  end
-
-  def create_morning_snack(food_plan)
-    meal = food_plan.meals.create(
-      name: "Lanche da Manhã",
-      time: "10:00",
-      meal_type: "morning_snack",
-      objective: "Manter o metabolismo ativo e evitar queda de energia"
-    )
-    
-    # Adicionar alimentos simples
-    meal.food_items.create(name: "Maçã", quantity: "1", unit: "unidade")
-    meal.food_items.create(name: "Castanhas", quantity: "1", unit: "punhado pequeno")
+    fruit_item = meal.food_items.create(name: "Banana", quantity: "1", unit: "unidade")
   end
 
   def create_lunch(food_plan)
     meal = food_plan.meals.create(
       name: "Almoço",
-      time: "13:00",
+      time: "12:00",
       meal_type: "lunch",
-      objective: "Fornecer nutrientes essenciais para as atividades do dia"
+      objective: "Fornecer nutrientes essenciais para a energia do dia"
     )
     
-    # Adicionar alimentos principais
-    add_main_meal_foods(meal)
+    # Adicionar alimentos com base nas preferências e restrições
+    add_lunch_foods(meal)
   end
 
-  def create_afternoon_snack(food_plan)
-    meal = food_plan.meals.create(
-      name: "Lanche da Tarde",
-      time: "16:00",
-      meal_type: "afternoon_snack",
-      objective: "Manter a energia e evitar excessos no jantar"
-    )
-    
+  def add_lunch_foods(meal)
     # Verificar se há restrições
     has_gluten_restriction = has_restriction?('glúten')
-    has_lactose_restriction = has_restriction?('lactose')
+    is_vegetarian = @anamnesis.dietary_preferences&.dig('diet_type') == 'vegetarian' || 
+                    @anamnesis.dietary_preferences&.dig('diet_type') == 'vegan'
     
     # Adicionar proteína
-    if has_lactose_restriction
-      meal.food_items.create(name: "Pasta de amendoim", quantity: "1", unit: "colher de sopa")
+    if is_vegetarian
+      protein_item = meal.food_items.create(name: "Feijão", quantity: "4", unit: "colheres de sopa")
     else
-      meal.food_items.create(name: "Queijo branco", quantity: "1", unit: "fatia média")
+      protein_item = meal.food_items.create(name: "Peito de frango grelhado", quantity: "100", unit: "g")
     end
     
     # Adicionar carboidrato
-    if has_gluten_restriction
-      meal.food_items.create(name: "Biscoito de arroz", quantity: "4", unit: "unidades")
-    else
-      meal.food_items.create(name: "Torrada integral", quantity: "2", unit: "unidades")
-    end
+    carb_item = meal.food_items.create(name: "Arroz integral", quantity: "4", unit: "colheres de sopa")
     
-    # Adicionar fruta
-    meal.food_items.create(name: "Pera", quantity: "1", unit: "unidade")
+    # Adicionar vegetal
+    veggie_item = meal.food_items.create(name: "Salada verde", quantity: "1", unit: "prato")
   end
 
   def create_dinner(food_plan)
@@ -926,63 +846,111 @@ class AiNutritionPlanGenerator
       name: "Jantar",
       time: "19:00",
       meal_type: "dinner",
-      objective: "Fornecer nutrientes para recuperação e preparação para o descanso"
+      objective: "Fornecer nutrientes para recuperação e saciedade noturna"
     )
     
-    # Adicionar alimentos principais (versão mais leve que o almoço)
-    add_main_meal_foods(meal, lighter: true)
+    # Adicionar alimentos com base nas preferências e restrições
+    add_dinner_foods(meal)
+  end
+
+  def add_dinner_foods(meal)
+    # Verificar se há restrições
+    is_vegetarian = @anamnesis.dietary_preferences&.dig('diet_type') == 'vegetarian' || 
+                    @anamnesis.dietary_preferences&.dig('diet_type') == 'vegan'
+    
+    # Adicionar proteína
+    if is_vegetarian
+      protein_item = meal.food_items.create(name: "Tofu", quantity: "100", unit: "g")
+    else
+      protein_item = meal.food_items.create(name: "Peixe assado", quantity: "100", unit: "g")
+    end
+    
+    # Adicionar carboidrato
+    carb_item = meal.food_items.create(name: "Batata doce", quantity: "1", unit: "unidade média")
+    
+    # Adicionar vegetal
+    veggie_item = meal.food_items.create(name: "Legumes no vapor", quantity: "1", unit: "prato pequeno")
+  end
+
+  def create_morning_snack(food_plan)
+    meal = food_plan.meals.create(
+      name: "Lanche da Manhã",
+      time: "10:00",
+      meal_type: "morning_snack",
+      objective: "Manter o metabolismo ativo e evitar picos de fome"
+    )
+    
+    # Adicionar alimentos com base nas preferências e restrições
+    add_morning_snack_foods(meal)
+  end
+
+  def add_morning_snack_foods(meal)
+    # Verificar se há restrições
+    has_lactose_restriction = has_restriction?('lactose')
+    
+    # Adicionar fruta
+    fruit_item = meal.food_items.create(name: "Maçã", quantity: "1", unit: "unidade")
+    
+    # Adicionar complemento
+    if has_lactose_restriction
+      complement_item = meal.food_items.create(name: "Castanhas", quantity: "1", unit: "punhado pequeno")
+    else
+      complement_item = meal.food_items.create(name: "Iogurte natural", quantity: "1", unit: "pote pequeno")
+    end
+  end
+
+  def create_afternoon_snack(food_plan)
+    meal = food_plan.meals.create(
+      name: "Lanche da Tarde",
+      time: "16:00",
+      meal_type: "afternoon_snack",
+      objective: "Evitar queda de energia e controlar a fome antes do jantar"
+    )
+    
+    # Adicionar alimentos com base nas preferências e restrições
+    add_afternoon_snack_foods(meal)
+  end
+
+  def add_afternoon_snack_foods(meal)
+    # Verificar se há restrições
+    has_gluten_restriction = has_restriction?('glúten')
+    
+    # Adicionar carboidrato
+    if has_gluten_restriction
+      carb_item = meal.food_items.create(name: "Tapioca", quantity: "1", unit: "unidade pequena")
+    else
+      carb_item = meal.food_items.create(name: "Torrada integral", quantity: "2", unit: "unidades")
+    end
+    
+    # Adicionar complemento
+    complement_item = meal.food_items.create(name: "Abacate", quantity: "1/4", unit: "unidade")
   end
 
   def create_evening_snack(food_plan)
     meal = food_plan.meals.create(
       name: "Ceia",
-      time: "21:30",
+      time: "21:00",
       meal_type: "evening_snack",
-      objective: "Evitar fome durante a noite e auxiliar no sono"
+      objective: "Fornecer nutrientes leves para uma boa noite de sono"
     )
     
+    # Adicionar alimentos com base nas preferências e restrições
+    add_evening_snack_foods(meal)
+  end
+
+  def add_evening_snack_foods(meal)
     # Verificar se há restrições
     has_lactose_restriction = has_restriction?('lactose')
     
-    # Adicionar proteína leve
+    # Adicionar bebida
     if has_lactose_restriction
-      meal.food_items.create(name: "Chá de camomila", quantity: "1", unit: "xícara")
-      meal.food_items.create(name: "Castanhas", quantity: "1", unit: "punhado pequeno")
+      drink_item = meal.food_items.create(name: "Chá de camomila", quantity: "1", unit: "xícara")
     else
-      meal.food_items.create(name: "Iogurte natural", quantity: "1", unit: "pote pequeno")
-      meal.food_items.create(name: "Mel", quantity: "1", unit: "colher de chá")
+      drink_item = meal.food_items.create(name: "Leite morno", quantity: "1", unit: "xícara")
     end
     
-    # Adicionar carboidrato leve
-    meal.food_items.create(name: "Banana", quantity: "1/2", unit: "unidade")
-  end
-
-  def add_main_meal_foods(meal, lighter: false)
-    is_vegetarian = vegetarian_diet?
-    is_vegan = vegan_diet?
-    
-    # Adicionar proteína
-    if is_vegan
-      meal.food_items.create(name: "Tofu/Tempeh", quantity: lighter ? "80" : "100", unit: "g")
-      meal.food_items.create(name: "Lentilhas", quantity: lighter ? "2" : "3", unit: "colheres de sopa")
-    elsif is_vegetarian
-      meal.food_items.create(name: "Ovos", quantity: lighter ? "1" : "2", unit: "unidades")
-      meal.food_items.create(name: "Queijo", quantity: "30", unit: "g")
-    else
-      protein_source = preferred_protein_source
-      meal.food_items.create(name: protein_source, quantity: lighter ? "100" : "150", unit: "g")
-    end
-    
-    # Adicionar carboidratos
-    carb_source = preferred_carb_source
-    meal.food_items.create(name: carb_source, quantity: lighter ? "3" : "4", unit: "colheres de sopa")
-    
-    # Adicionar vegetais
-    meal.food_items.create(name: "Salada verde variada", quantity: "1", unit: "prato")
-    meal.food_items.create(name: "Legumes cozidos", quantity: "1/2", unit: "prato")
-    
-    # Adicionar gordura boa
-    meal.food_items.create(name: "Azeite de oliva", quantity: "1", unit: "colher de sobremesa")
+    # Adicionar complemento
+    complement_item = meal.food_items.create(name: "Banana", quantity: "1/2", unit: "unidade")
   end
 
   def create_water_plan(food_plan)
@@ -1071,5 +1039,185 @@ class AiNutritionPlanGenerator
     
     # Padrão
     "Arroz integral"
+  end
+
+  def generate_substitutes_for_food_plan(food_plan)
+    Rails.logger.info("Gerando substitutos para os itens alimentares do plano ##{food_plan.id}")
+    
+    # Coletar todos os itens alimentares do plano
+    food_items = food_plan.meals.flat_map(&:food_items)
+    
+    # Agrupar itens por tipo para reduzir chamadas à API
+    grouped_items = {}
+    
+    food_items.each do |item|
+      meal = item.meal
+      key = "#{item.name}_#{meal.meal_type}"
+      grouped_items[key] ||= { items: [], meal_type: meal.meal_type }
+      grouped_items[key][:items] << item
+    end
+    
+    # Gerar substitutos para cada grupo de itens
+    grouped_items.each do |key, data|
+      # Pegar o primeiro item como referência
+      reference_item = data[:items].first
+      meal_type = data[:meal_type]
+      
+      # Gerar substitutos usando a IA
+      substitutes = request_substitutes_from_ai(reference_item, meal_type)
+      
+      # Aplicar os substitutos a todos os itens do mesmo tipo
+      data[:items].each do |item|
+        apply_substitutes_to_item(item, substitutes)
+      end
+    end
+    
+    Rails.logger.info("Substitutos gerados com sucesso")
+  end
+  
+  def request_substitutes_from_ai(food_item, meal_type)
+    # Construir o prompt para a IA
+    prompt = <<~PROMPT
+      Você é um nutricionista especializado em planos alimentares.
+      
+      Preciso de 2 a 3 opções de substituição para o seguinte item alimentar em um plano nutricional:
+      
+      Item: #{food_item.name}
+      Quantidade: #{food_item.quantity} #{food_item.unit}
+      Tipo de refeição: #{meal_type}
+      
+      Restrições alimentares do paciente: #{get_restrictions_text}
+      Preferências alimentares: #{get_preferences_text}
+      
+      Por favor, priorize alimentos da culinária brasileira e ingredientes facilmente encontrados no Brasil. Considere as variações regionais brasileiras e alimentos sazonais locais.
+      
+      Forneça substitutos que mantenham o valor nutricional semelhante e respeitem as restrições alimentares.
+      
+      Responda apenas com um array JSON no seguinte formato:
+      [
+        {"name": "Nome do substituto 1", "quantity": "quantidade", "unit": "unidade"},
+        {"name": "Nome do substituto 2", "quantity": "quantidade", "unit": "unidade"},
+        {"name": "Nome do substituto 3", "quantity": "quantidade", "unit": "unidade"}
+      ]
+    PROMPT
+    
+    # Chamar a API da OpenAI
+    begin
+      Rails.logger.info("Solicitando substitutos para #{food_item.name}")
+      response = call_openai_api_for_substitutes(prompt)
+      
+      # Processar a resposta
+      parse_substitutes_from_response(response)
+    rescue => e
+      Rails.logger.error("Erro ao solicitar substitutos: #{e.message}")
+      # Retornar substitutos padrão em caso de erro
+      default_substitutes_for(food_item)
+    end
+  end
+  
+  def get_restrictions_text
+    return "Nenhuma" unless @anamnesis.restrictions.present?
+    
+    restrictions = []
+    restrictions << "Alergia a #{@anamnesis.restrictions['food_allergies']}" if @anamnesis.restrictions['food_allergies'].present?
+    restrictions << "Intolerância a #{@anamnesis.restrictions['intolerances']}" if @anamnesis.restrictions['intolerances'].present?
+    restrictions << "Restrições médicas: #{@anamnesis.restrictions['medical_restrictions']}" if @anamnesis.restrictions['medical_restrictions'].present?
+    
+    restrictions.any? ? restrictions.join(", ") : "Nenhuma"
+  end
+  
+  def get_preferences_text
+    return "Nenhuma específica" unless @anamnesis.dietary_preferences.present?
+    
+    preferences = []
+    preferences << "Alimentos favoritos: #{@anamnesis.dietary_preferences['favorite_foods']}" if @anamnesis.dietary_preferences['favorite_foods'].present?
+    preferences << "Alimentos que não gosta: #{@anamnesis.dietary_preferences['disliked_foods']}" if @anamnesis.dietary_preferences['disliked_foods'].present?
+    preferences << "Tipo de dieta: #{@anamnesis.dietary_preferences['diet_type']}" if @anamnesis.dietary_preferences['diet_type'].present?
+    
+    preferences.any? ? preferences.join(", ") : "Nenhuma específica"
+  end
+  
+  def call_openai_api_for_substitutes(prompt)
+    # Configuração da API OpenAI
+    client = OpenAI::Client.new(access_token: ENV['OPENAI_API_KEY'])
+    
+    # Chamada à API
+    response = client.chat(
+      parameters: {
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: "Você é um nutricionista especializado que fornece substitutos para itens alimentares em planos nutricionais. Priorize alimentos típicos da culinária brasileira e ingredientes facilmente encontrados no Brasil. Considere as variações regionais brasileiras e alimentos sazonais locais." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.7,
+        max_tokens: 300
+      }
+    )
+    
+    # Retornar o conteúdo da resposta
+    response.dig("choices", 0, "message", "content")
+  rescue => e
+    Rails.logger.error("Erro ao chamar a API OpenAI: #{e.message}")
+    # Em caso de erro, retornar uma resposta padrão
+    '[{"name": "Opção alternativa", "quantity": "1", "unit": "porção"}]'
+  end
+  
+  def parse_substitutes_from_response(response)
+    # Tentar extrair o array JSON da resposta
+    json_match = response.match(/\[.*?\]/m)
+    
+    if json_match
+      begin
+        # Parsear o JSON encontrado
+        JSON.parse(json_match[0], symbolize_names: true)
+      rescue JSON::ParserError => e
+        Rails.logger.error("Erro ao parsear JSON da resposta da IA: #{e.message}")
+        # Em caso de erro, retornar um array padrão
+        [{ name: "Opção alternativa", quantity: "1", unit: "porção" }]
+      end
+    else
+      # Se não encontrar um array JSON, retornar um array padrão
+      [{ name: "Opção alternativa", quantity: "1", unit: "porção" }]
+    end
+  end
+  
+  def apply_substitutes_to_item(food_item, substitutes)
+    substitutes.each do |substitute|
+      food_item.add_substitute(substitute[:name], substitute[:quantity], substitute[:unit])
+    end
+  end
+  
+  def default_substitutes_for(food_item)
+    case food_item.name.downcase
+    when /pão/, /torrada/
+      [
+        { name: "Tapioca", quantity: "2", unit: "unidades pequenas" },
+        { name: "Beiju", quantity: "2", unit: "unidades pequenas" },
+        { name: "Cuscuz de milho", quantity: "1", unit: "porção pequena" }
+      ]
+    when /arroz/
+      [
+        { name: "Mandioca cozida", quantity: "1", unit: "porção média" },
+        { name: "Batata doce", quantity: "1", unit: "unidade média" },
+        { name: "Inhame cozido", quantity: "1", unit: "porção média" }
+      ]
+    when /frango/, /carne/, /peixe/
+      [
+        { name: "Ovos", quantity: "2", unit: "unidades" },
+        { name: "PTS (Proteína Texturizada de Soja)", quantity: "50", unit: "g" },
+        { name: "Feijão com arroz", quantity: "1", unit: "porção média" }
+      ]
+    when /leite/, /iogurte/, /queijo/
+      [
+        { name: "Leite de coco", quantity: food_item.quantity, unit: food_item.unit },
+        { name: "Coalhada", quantity: food_item.quantity, unit: food_item.unit },
+        { name: "Queijo coalho", quantity: "30", unit: "g" }
+      ]
+    else
+      [
+        { name: "Alternativa brasileira similar", quantity: food_item.quantity, unit: food_item.unit },
+        { name: "Opção regional equivalente", quantity: food_item.quantity, unit: food_item.unit }
+      ]
+    end
   end
 end
