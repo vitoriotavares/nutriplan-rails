@@ -1,0 +1,37 @@
+<div class="max-w-4xl mx-auto my-12 px-4 text-center">
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden p-8">
+    <div class="mb-6 text-red-500">
+      <i class="fas fa-times-circle text-6xl"></i>
+    </div>
+    
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">Pagamento Não Aprovado</h1>
+    
+    <p class="text-lg text-gray-600 mb-8">
+      Infelizmente, houve um problema com o seu pagamento e não foi possível ativar sua assinatura.
+      Isso pode acontecer por diversos motivos, como problemas com o cartão ou dados incorretos.
+    </p>
+    
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-8 text-left">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">
+            Nenhum valor foi cobrado da sua conta. Você pode tentar novamente a qualquer momento.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+      <%= link_to plans_path, class: "px-6 py-3 bg-red-600 text-white rounded hover:bg-red-700 transition flex items-center justify-center" do %>
+        <i class="fas fa-redo mr-2"></i> Tentar Novamente
+      <% end %>
+      
+      <%= link_to contact_path, class: "px-6 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 transition flex items-center justify-center" do %>
+        <i class="fas fa-envelope mr-2"></i> Contatar Suporte
+      <% end %>
+    </div>
+  </div>
+</div>

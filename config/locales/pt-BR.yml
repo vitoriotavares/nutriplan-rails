@@ -45,7 +45,7 @@ pt-BR:
   date:
     formats:
       default: "%d/%m/%Y"
-      short: "%d de %B"
+      short: "%d de %b"
       long: "%d de %B de %Y"
     
     day_names: [Domingo, Segunda-feira, Terça-feira, Quarta-feira, Quinta-feira, Sexta-feira, Sábado]
@@ -157,31 +157,54 @@ pt-BR:
       show: Visualizar
       actions: Ações
     
-    users:
-      created: Conta criada com sucesso!
-      updated: Conta atualizada com sucesso!
-    
     sessions:
-      created: Login realizado com sucesso!
-      destroyed: Logout realizado com sucesso!
-      invalid: Email ou senha inválidos.
+      created: "Login realizado com sucesso!"
+      invalid: "Email ou senha inválidos."
+      destroyed: "Logout realizado com sucesso!"
+      login_required: "Você precisa fazer login para acessar esta página."
+    
+    users:
+      created: "Conta criada com sucesso!"
+      updated: "Conta atualizada com sucesso!"
     
     profiles:
-      updated: Perfil atualizado com sucesso!
+      updated: "Perfil atualizado com sucesso!"
     
     anamneses:
-      created: Anamnese criada com sucesso!
-      updated: Anamnese atualizada com sucesso!
-      step_saved: Etapa salva com sucesso!
+      created: "Anamnese iniciada com sucesso!"
+      updated: "Anamnese atualizada com sucesso!"
+      steps:
+        health_data: "Dados de Saúde"
+        dietary_preferences: "Preferências"
+        restrictions: "Restrições"
+        lifestyle: "Estilo de Vida"
+        goals: "Objetivos"
     
     food_plans:
-      created: Plano alimentar criado com sucesso!
-      updated: Plano alimentar atualizado com sucesso!
+      created: "Plano alimentar gerado com sucesso!"
+      updated: "Plano alimentar atualizado com sucesso!"
+      destroyed: "Plano alimentar excluído com sucesso!"
+      create_error: "Erro ao gerar plano alimentar. Por favor, tente novamente."
+      pdf_generated: "PDF do plano alimentar gerado com sucesso!"
+    
+    meals:
+      created: "Refeição adicionada com sucesso!"
+      updated: "Refeição atualizada com sucesso!"
+      destroyed: "Refeição excluída com sucesso!"
+    
+    food_items:
+      created: "Item alimentar adicionado com sucesso!"
+      updated: "Item alimentar atualizado com sucesso!"
+      destroyed: "Item alimentar excluído com sucesso!"
+    
+    water_plans:
+      created: "Plano de hidratação criado com sucesso!"
+      updated: "Plano de hidratação atualizado com sucesso!"
     
     recipes:
-      created: Receita criada com sucesso!
-      updated: Receita atualizada com sucesso!
-
+      created: "Receita criada com sucesso!"
+      updated: "Receita atualizada com sucesso!"
+  
   activerecord:
     models:
       user: "Usuário"
@@ -234,3 +257,46 @@ pt-BR:
         cooking_time: "Tempo de cozimento"
         instructions: "Instruções"
         nutritional_info: "Informações nutricionais"
+
+  # Configurações de moeda
+  number:
+    currency:
+      format:
+        delimiter: "."
+        format: "%u %n"
+        precision: 2
+        separator: ","
+        significant: false
+        strip_insignificant_zeros: false
+        unit: "R$"
+    format:
+      delimiter: "."
+      precision: 3
+      separator: ","
+      significant: false
+      strip_insignificant_zeros: false
+    human:
+      decimal_units:
+        format: "%n %u"
+        units:
+          billion: "Bilhão"
+          million: "Milhão"
+          quadrillion: "Quatrilhão"
+          thousand: "Mil"
+          trillion: "Trilhão"
+          unit: ""
+      format:
+        delimiter: ""
+        precision: 3
+        significant: true
+        strip_insignificant_zeros: true
+      storage_units:
+        format: "%n %u"
+        units:
+          byte:
+            one: "Byte"
+            other: "Bytes"
+          gb: "GB"
+          kb: "KB"
+          mb: "MB"
+          tb: "TB"

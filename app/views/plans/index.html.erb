@@ -1,0 +1,116 @@
+<div class="max-w-5xl mx-auto my-12 px-4">
+  <h1 class="text-3xl font-bold text-center text-gray-800 mb-12 flex items-center justify-center">
+    <i class="fas fa-tags text-green-600 mr-3"></i>
+    Planos NutriPlan
+  </h1>
+  
+  <div class="text-center mb-10">
+    <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+      Escolha o plano que melhor atende às suas necessidades nutricionais. 
+      Comece com o plano gratuito ou aproveite recursos avançados com nosso plano premium.
+    </p>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <% @plans.each do |plan| %>
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden border <%= plan.price.zero? ? 'border-gray-200' : 'border-2 border-green-500' %> relative">
+        <% if !plan.price.zero? %>
+          <div class="absolute top-0 right-0 bg-green-500 text-white px-4 py-1 rounded-bl-lg font-medium">
+            Recomendado
+          </div>
+        <% end %>
+        
+        <div class="p-6">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2 flex items-center">
+            <i class="<%= plan.price.zero? ? 'fas fa-seedling' : 'fas fa-crown' %> <%= plan.price.zero? ? 'text-green-500' : 'text-yellow-500' %> mr-2"></i>
+            <%= plan.name %>
+          </h2>
+          
+          <div class="mb-6">
+            <span class="text-3xl font-bold text-gray-900">
+              <%= plan.price.zero? ? 'Grátis' : number_to_currency(plan.price) %>
+            </span>
+            <% unless plan.price.zero? %>
+              <span class="text-gray-500">/mês</span>
+            <% end %>
+          </div>
+          
+          <div class="border-t border-gray-200 pt-4 mb-6">
+            <p class="text-gray-600 mb-4"><%= plan.description %></p>
+            
+            <ul class="space-y-3">
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>
+                  <% if plan.food_plans_limit.zero? %>
+                    Planos alimentares ilimitados
+                  <% else %>
+                    <%= pluralize(plan.food_plans_limit, 'plano alimentar', 'planos alimentares') %> por mês
+                  <% end %>
+                </span>
+              </li>
+              
+              <li class="flex items-start">
+                <i class="fas <%= plan.full_recipe_access ? 'fa-check-circle text-green-500' : 'fa-times-circle text-gray-400' %> mt-1 mr-2"></i>
+                <span class="<%= plan.full_recipe_access ? 'text-gray-700' : 'text-gray-500' %>">
+                  <%= plan.full_recipe_access ? 'Acesso a todas as receitas' : 'Acesso a receitas básicas' %>
+                </span>
+              </li>
+              
+              <li class="flex items-start">
+                <i class="fas <%= plan.priority_support ? 'fa-check-circle text-green-500' : 'fa-times-circle text-gray-400' %> mt-1 mr-2"></i>
+                <span class="<%= plan.priority_support ? 'text-gray-700' : 'text-gray-500' %>">
+                  <%= plan.priority_support ? 'Suporte prioritário' : 'Suporte básico por email' %>
+                </span>
+              </li>
+              
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>Exportação para PDF</span>
+              </li>
+            </ul>
+          </div>
+          
+          <% if current_user %>
+            <% if @current_plan && @current_plan.id == plan.id %>
+              <div class="w-full py-3 px-4 bg-gray-100 text-gray-700 rounded text-center font-medium">
+                <i class="fas fa-check mr-2"></i> Seu plano atual
+              </div>
+            <% else %>
+              <%= link_to new_subscription_path(plan_id: plan.id), class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white #{plan.price.zero? ? 'bg-gray-600 hover:bg-gray-700' : 'bg-green-600 hover:bg-green-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" do %>
+                <i class="fas fa-arrow-right mr-2"></i>
+                <%= plan.price.zero? ? 'Começar agora' : 'Assinar plano' %>
+              <% end %>
+            <% end %>
+          <% else %>
+            <%= link_to login_path, class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+              <i class="fas fa-sign-in-alt mr-2"></i> Entrar para assinar
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  
+  <div class="mt-12 bg-gray-50 p-6 rounded-lg border border-gray-200">
+    <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+      <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+      Informações importantes
+    </h3>
+    
+    <ul class="space-y-2 text-gray-600">
+      <li class="flex items-start">
+        <i class="fas fa-circle text-blue-500 text-xs mt-1.5 mr-2"></i>
+        <span>Você pode cancelar sua assinatura a qualquer momento sem taxas adicionais.</span>
+      </li>
+      <li class="flex items-start">
+        <i class="fas fa-circle text-blue-500 text-xs mt-1.5 mr-2"></i>
+        <span>Aceitamos pagamentos via cartão de crédito e boleto bancário através do Mercado Pago.</span>
+      </li>
+      <li class="flex items-start">
+        <i class="fas fa-circle text-blue-500 text-xs mt-1.5 mr-2"></i>
+        <span>Em caso de dúvidas, entre em contato com nosso suporte através da página de <%= link_to "contato", contact_path, class: "text-green-600 hover:text-green-800" %>.</span>
+      </li>
+    </ul>
+  </div>
+</div>

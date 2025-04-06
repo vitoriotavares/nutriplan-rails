@@ -1,0 +1,183 @@
+<div class="max-w-4xl mx-auto my-8 px-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800"><i class="fas fa-plus-circle text-green-600 mr-2"></i>Plano Alimentar Adicional</h1>
+    <div class="flex space-x-2">
+      <%= link_to dashboard_path, class: "px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition flex items-center" do %>
+        <i class="fas fa-arrow-left mr-2"></i> Voltar
+      <% end %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+    <div class="p-6">
+      <div class="flex justify-between items-start">
+        <div>
+          <h2 class="text-xl font-semibold mb-2 text-gray-800 flex items-center">
+            <i class="fas fa-utensils text-green-500 mr-2"></i>
+            Plano Alimentar Adicional
+          </h2>
+          <p class="text-gray-600 mb-4">
+            Compre um plano alimentar adicional para usar quando precisar.
+          </p>
+        </div>
+        <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+          Pagamento único
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-200 pt-4 mb-6">
+        <div class="mb-6">
+          <span class="text-3xl font-bold text-gray-900">
+            <%= number_to_currency(@price) %>
+          </span>
+        </div>
+        
+        <h3 class="font-medium text-gray-700 mb-2">O que você recebe:</h3>
+        <ul class="space-y-3">
+          <li class="flex items-start">
+            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+            <span>1 plano alimentar adicional</span>
+          </li>
+          
+          <li class="flex items-start">
+            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+            <span>Sem prazo de expiração</span>
+          </li>
+          
+          <li class="flex items-start">
+            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+            <span>Acesso a todas as funcionalidades de criação de plano</span>
+          </li>
+          
+          <li class="flex items-start">
+            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+            <span>Exportação para PDF</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+        <h3 class="font-medium text-gray-700 mb-2">Informações de pagamento:</h3>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li class="flex items-start">
+            <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-2"></i>
+            <span>Você será redirecionado para o Mercado Pago para concluir seu pagamento de forma segura.</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-credit-card text-blue-500 mt-0.5 mr-2"></i>
+            <span>Aceitamos cartões de crédito, débito e boleto bancário.</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-shield-alt text-blue-500 mt-0.5 mr-2"></i>
+            <span>Pagamento único, sem cobranças recorrentes.</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="flex items-center p-4 mb-6 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50">
+        <i class="fas fa-lightbulb flex-shrink-0 inline w-5 h-5 mr-3"></i>
+        <span>
+          <strong>Dica:</strong> Se você cria planos alimentares com frequência, considere 
+          <%= link_to "assinar o plano premium", plans_path, class: "text-blue-600 underline hover:text-blue-800" %> 
+          por apenas <%= number_to_currency(19.90) %>/mês e tenha acesso a 3 planos mensais, além de outros benefícios.
+        </span>
+      </div>
+      
+      <%= form_with url: additional_plans_path, method: :post, class: "mt-6" do |f| %>
+        <div class="mb-6">
+          <div class="flex items-center">
+            <%= check_box_tag :terms_accepted, "1", false, required: true, class: "h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded", id: "terms_accepted", onchange: "toggleSubmitButton()" %>
+            <label for="terms_accepted" class="ml-2 block text-sm text-gray-700">
+              Eu concordo com os <%= link_to "Termos de Uso", terms_path, target: "_blank", class: "text-green-600 hover:text-green-800" %> e 
+              <%= link_to "Política de Privacidade", privacy_path, target: "_blank", class: "text-green-600 hover:text-green-800" %>
+            </label>
+          </div>
+        </div>
+        
+        <%= f.submit "Prosseguir para Pagamento", class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 cursor-not-allowed", id: "payment_button", disabled: true %>
+      <% end %>
+    </div>
+  </div>
+  
+  <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+    <h3 class="font-medium text-gray-700 mb-3 flex items-center">
+      <i class="fas fa-question-circle text-blue-500 mr-2"></i>
+      Perguntas Frequentes
+    </h3>
+    
+    <div class="space-y-4 mt-4">
+      <div class="border border-gray-200 rounded-md overflow-hidden">
+        <button class="w-full flex justify-between items-center px-4 py-3 bg-white text-left focus:outline-none" onclick="toggleFAQ(this)">
+          <span class="font-medium text-gray-700">Quando posso usar meu plano adicional?</span>
+          <i class="fas fa-chevron-down text-gray-500"></i>
+        </button>
+        <div class="hidden px-4 py-3 bg-gray-50">
+          <p class="text-gray-600 text-sm">
+            Você pode usar seu plano alimentar adicional a qualquer momento, quando atingir o limite do seu plano atual. Os planos adicionais não expiram e ficam disponíveis em sua conta até serem utilizados.
+          </p>
+        </div>
+      </div>
+      
+      <div class="border border-gray-200 rounded-md overflow-hidden">
+        <button class="w-full flex justify-between items-center px-4 py-3 bg-white text-left focus:outline-none" onclick="toggleFAQ(this)">
+          <span class="font-medium text-gray-700">Posso comprar mais de um plano adicional?</span>
+          <i class="fas fa-chevron-down text-gray-500"></i>
+        </button>
+        <div class="hidden px-4 py-3 bg-gray-50">
+          <p class="text-gray-600 text-sm">
+            Sim, você pode comprar quantos planos adicionais desejar. Cada compra adiciona um plano à sua conta, que pode ser usado quando necessário.
+          </p>
+        </div>
+      </div>
+      
+      <div class="border border-gray-200 rounded-md overflow-hidden">
+        <button class="w-full flex justify-between items-center px-4 py-3 bg-white text-left focus:outline-none" onclick="toggleFAQ(this)">
+          <span class="font-medium text-gray-700">Qual a diferença entre comprar planos adicionais e assinar o plano premium?</span>
+          <i class="fas fa-chevron-down text-gray-500"></i>
+        </button>
+        <div class="hidden px-4 py-3 bg-gray-50">
+          <p class="text-gray-600 text-sm">
+            Planos adicionais são ideais para uso ocasional, com pagamento único de <%= number_to_currency(@price) %> por plano. O plano premium custa <%= number_to_currency(19.90) %>/mês e oferece 3 planos mensais, acesso a todas as receitas e suporte prioritário, sendo mais econômico para uso frequente.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleFAQ(button) {
+    const content = button.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    if (content.classList.contains('hidden')) {
+      content.classList.remove('hidden');
+      icon.classList.remove('fa-chevron-down');
+      icon.classList.add('fa-chevron-up');
+    } else {
+      content.classList.add('hidden');
+      icon.classList.remove('fa-chevron-up');
+      icon.classList.add('fa-chevron-down');
+    }
+  }
+  
+  function toggleSubmitButton() {
+    const termsCheckbox = document.getElementById('terms_accepted');
+    const submitButton = document.getElementById('payment_button');
+    
+    if (termsCheckbox.checked) {
+      submitButton.disabled = false;
+      submitButton.classList.remove('bg-gray-400', 'hover:bg-gray-500', 'focus:ring-gray-400', 'cursor-not-allowed');
+      submitButton.classList.add('bg-green-600', 'hover:bg-green-700', 'focus:ring-green-500');
+    } else {
+      submitButton.disabled = true;
+      submitButton.classList.remove('bg-green-600', 'hover:bg-green-700', 'focus:ring-green-500');
+      submitButton.classList.add('bg-gray-400', 'hover:bg-gray-500', 'focus:ring-gray-400', 'cursor-not-allowed');
+    }
+  }
+  
+  // Inicializar o estado do botão quando a página carrega
+  document.addEventListener('DOMContentLoaded', function() {
+    toggleSubmitButton();
+  });
+</script>

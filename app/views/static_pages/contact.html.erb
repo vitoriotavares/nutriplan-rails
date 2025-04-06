@@ -1,0 +1,207 @@
+<div class="max-w-4xl mx-auto my-8 px-4">
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div class="p-6 md:p-8">
+      <h1 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+        <i class="fas fa-envelope text-green-600 mr-3"></i>
+        Entre em Contato
+      </h1>
+      
+      <div class="prose prose-green max-w-none">
+        <p class="text-gray-600 mb-6">
+          Estamos aqui para ajudar! Preencha o formulário abaixo ou use um dos nossos canais de contato direto.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div>
+            <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+              <i class="fas fa-paper-plane text-green-500 mr-2"></i>
+              Formulário de Contato
+            </h2>
+            
+            <%= form_with url: "#", method: :post, class: "space-y-4" do |f| %>
+              <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                <%= f.text_field :name, class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500", required: true %>
+              </div>
+              
+              <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <%= f.email_field :email, class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500", required: true %>
+              </div>
+              
+              <div>
+                <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Assunto</label>
+                <%= f.select :subject, [
+                  ["Selecione um assunto", ""],
+                  ["Dúvidas sobre planos", "planos"],
+                  ["Suporte técnico", "suporte"],
+                  ["Sugestões", "sugestoes"],
+                  ["Outros", "outros"]
+                ], {}, { class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500", required: true } %>
+              </div>
+              
+              <div>
+                <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
+                <%= f.text_area :message, rows: 5, class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500", required: true %>
+              </div>
+              
+              <div class="flex items-center">
+                <%= f.check_box :privacy, class: "h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" %>
+                <label for="privacy" class="ml-2 block text-sm text-gray-700">
+                  Concordo com a <%= link_to "Política de Privacidade", privacy_path, class: "text-green-600 hover:text-green-800" %>
+                </label>
+              </div>
+              
+              <div>
+                <%= f.submit "Enviar Mensagem", class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" %>
+              </div>
+            <% end %>
+          </div>
+          
+          <div>
+            <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+              <i class="fas fa-info-circle text-green-500 mr-2"></i>
+              Informações de Contato
+            </h2>
+            
+            <div class="space-y-4">
+              <div class="flex items-start">
+                <div class="flex-shrink-0 mt-1">
+                  <i class="fas fa-map-marker-alt text-green-500 w-5 text-center"></i>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-base font-medium text-gray-800">Endereço</h3>
+                  <p class="text-gray-600">
+                    Av. Paulista, 1000<br>
+                    Bela Vista, São Paulo - SP<br>
+                    CEP: 01310-100
+                  </p>
+                </div>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="flex-shrink-0 mt-1">
+                  <i class="fas fa-phone text-green-500 w-5 text-center"></i>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-base font-medium text-gray-800">Telefone</h3>
+                  <p class="text-gray-600">
+                    (11) 5555-5555<br>
+                    Segunda a Sexta, 9h às 18h
+                  </p>
+                </div>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="flex-shrink-0 mt-1">
+                  <i class="fas fa-envelope text-green-500 w-5 text-center"></i>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-base font-medium text-gray-800">Email</h3>
+                  <p class="text-gray-600">
+                    contato@nutriplan.com.br<br>
+                    suporte@nutriplan.com.br
+                  </p>
+                </div>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="flex-shrink-0 mt-1">
+                  <i class="fas fa-clock text-green-500 w-5 text-center"></i>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-base font-medium text-gray-800">Horário de Atendimento</h3>
+                  <p class="text-gray-600">
+                    Segunda a Sexta: 9h às 18h<br>
+                    Sábado: 9h às 13h<br>
+                    Domingo: Fechado
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-8">
+              <h3 class="text-base font-medium text-gray-800 mb-3">Siga-nos nas Redes Sociais</h3>
+              <div class="flex space-x-4">
+                <a href="#" class="text-gray-600 hover:text-green-600">
+                  <i class="fab fa-facebook-square text-2xl"></i>
+                </a>
+                <a href="#" class="text-gray-600 hover:text-green-600">
+                  <i class="fab fa-instagram text-2xl"></i>
+                </a>
+                <a href="#" class="text-gray-600 hover:text-green-600">
+                  <i class="fab fa-twitter text-2xl"></i>
+                </a>
+                <a href="#" class="text-gray-600 hover:text-green-600">
+                  <i class="fab fa-linkedin text-2xl"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-8">
+          <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+            <i class="fas fa-question-circle text-green-500 mr-2"></i>
+            Perguntas Frequentes
+          </h2>
+          
+          <div class="space-y-4">
+            <div class="border border-gray-200 rounded-md overflow-hidden">
+              <button class="w-full flex justify-between items-center px-4 py-3 bg-gray-50 text-left focus:outline-none" onclick="toggleFAQ(this)">
+                <span class="font-medium text-gray-700">Como funciona o NutriPlan?</span>
+                <i class="fas fa-chevron-down text-gray-500"></i>
+              </button>
+              <div class="hidden px-4 py-3 bg-white">
+                <p class="text-gray-600">
+                  O NutriPlan é uma plataforma que permite criar planos alimentares personalizados com base nas suas necessidades e preferências. Após preencher um questionário de anamnese, nosso sistema gera um plano alimentar adaptado ao seu perfil.
+                </p>
+              </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-md overflow-hidden">
+              <button class="w-full flex justify-between items-center px-4 py-3 bg-gray-50 text-left focus:outline-none" onclick="toggleFAQ(this)">
+                <span class="font-medium text-gray-700">Posso alterar meu plano alimentar?</span>
+                <i class="fas fa-chevron-down text-gray-500"></i>
+              </button>
+              <div class="hidden px-4 py-3 bg-white">
+                <p class="text-gray-600">
+                  Sim, você pode editar seu plano alimentar a qualquer momento. Basta acessar o plano desejado e clicar no botão "Editar".
+                </p>
+              </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-md overflow-hidden">
+              <button class="w-full flex justify-between items-center px-4 py-3 bg-gray-50 text-left focus:outline-none" onclick="toggleFAQ(this)">
+                <span class="font-medium text-gray-700">O NutriPlan substitui a consulta com um nutricionista?</span>
+                <i class="fas fa-chevron-down text-gray-500"></i>
+              </button>
+              <div class="hidden px-4 py-3 bg-white">
+                <p class="text-gray-600">
+                  Não. O NutriPlan é uma ferramenta informativa e educacional, mas não substitui a consulta com um nutricionista profissional. Recomendamos sempre consultar um profissional de saúde antes de iniciar qualquer plano alimentar.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleFAQ(button) {
+    const content = button.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    if (content.classList.contains('hidden')) {
+      content.classList.remove('hidden');
+      icon.classList.remove('fa-chevron-down');
+      icon.classList.add('fa-chevron-up');
+    } else {
+      content.classList.add('hidden');
+      icon.classList.remove('fa-chevron-up');
+      icon.classList.add('fa-chevron-down');
+    }
+  }
+</script>

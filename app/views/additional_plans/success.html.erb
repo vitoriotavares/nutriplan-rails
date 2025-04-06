@@ -1,0 +1,37 @@
+<div class="max-w-4xl mx-auto my-12 px-4 text-center">
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden p-8">
+    <div class="mb-6 text-green-500">
+      <i class="fas fa-check-circle text-6xl"></i>
+    </div>
+    
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">Plano Adicional Adquirido!</h1>
+    
+    <p class="text-lg text-gray-600 mb-8">
+      Seu pagamento foi processado com sucesso e seu plano alimentar adicional já está disponível para uso.
+      Você pode criar um novo plano alimentar quando precisar.
+    </p>
+    
+    <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-8 text-left">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-info-circle text-green-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-green-700">
+            Você agora tem <%= current_user.additional_food_plans %> <%= 'plano'.pluralize(current_user.additional_food_plans) %> adicional(is) disponível(is).
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+      <%= link_to new_food_plan_path, class: "px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition flex items-center justify-center" do %>
+        <i class="fas fa-plus-circle mr-2"></i> Criar Plano Alimentar
+      <% end %>
+      
+      <%= link_to dashboard_path, class: "px-6 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 transition flex items-center justify-center" do %>
+        <i class="fas fa-home mr-2"></i> Ir para o Dashboard
+      <% end %>
+    </div>
+  </div>
+</div>

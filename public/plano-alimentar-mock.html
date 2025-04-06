@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plano Alimentar Personalizado - NutriPlan</title>
+    <style>
+        :root {
+            --primary-color: #2C7D54;
+            --secondary-color: #37B76A;
+            --accent-color: #F9A826;
+            --light-bg: #F5F9F7;
+            --dark-text: #333333;
+            --light-text: #FFFFFF;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 20px 0;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .logo span {
+            color: var(--accent-color);
+        }
+        
+        .client-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .client-name {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .plan-date {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .section {
+            background-color: white;
+            margin: 20px 0;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary-color);
+            font-size: 22px;
+        }
+        
+        .subsection-title {
+            color: var(--secondary-color);
+            margin: 15px 0 10px;
+            font-size: 18px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .summary-card {
+            background-color: var(--light-bg);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .summary-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        
+        .summary-card p {
+            font-size: 16px;
+        }
+        
+        .goal-tag {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: var(--light-text);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .diagnostic-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .diagnostic-card {
+            background-color: var(--light-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .diagnostic-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 250px;
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-container::before {
+            content: 'Gráfico de Distribuição de Macronutrientes';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .nutrition-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .nutrition-box {
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius);
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .nutrition-box h4 {
+            font-size: 14px;
+            color: var(--primary-color);
+        }
+        
+        .nutrition-box p {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .meal-goals {
+            background-color: var(--light-bg);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin: 10px 0;
+        }
+        
+        .meal-goals h4 {
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .meal-goals h4 span {
+            background-color: var(--primary-color);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        
+        .meal-goals-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .meal-goals-item {
+            padding: 10px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .meal-goals-item h5 {
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .meal-goals-item p {
+            font-size: 14px;
+        }
+        
+        .days-tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        
+        .day-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-weight: bold;
+            color: #777;
+            position: relative;
+        }
+        
+        .day-tab.active {
+            color: var(--primary-color);
+        }
+        
+        .day-tab.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+        
+        .meals-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .meal-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+        
+        .meal-header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .meal-time {
+            font-size: 14px;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        
+        .meal-content {
+            padding: 15px;
+        }
+        
+        .meal-objective {
+            background-color: var(--light-bg);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            font-size: 14px;
+            border-left: 3px solid var(--accent-color);
+        }
+        
+        .meal-objective strong {
+            color: var(--primary-color);
+        }
+        
+        .food-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .food-name {
+            font-weight: 500;
+        }
+        
+        .food-portion {
+            color: #777;
+            font-size: 14px;
+        }
+        
+        .water-section {
+            background: linear-gradient(to right, #E0F7FA, #B2EBF2);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-top: 30px;
+        }
+        
+        .water-title {
+            color: #0288D1;
+            border-bottom: 2px solid #0288D1;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .water-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .water-chart {
+            background-color: white;
+            border-radius: var(--border-radius);
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .water-chart::before {
+            content: "Gráfico de Distribuição de Água";
+            position: absolute;
+            color: #0288D1;
+            font-weight: bold;
+        }
+        
+        .water-recommendations {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+        }
+        
+        .water-recommendations h4 {
+            color: #0288D1;
+            margin-bottom: 10px;
+        }
+        
+        .water-recommendations ul {
+            padding-left: 20px;
+        }
+        
+        .water-recommendations li {
+            margin-bottom: 8px;
+        }
+        
+        .grocery-list {
+            margin-top: 20px;
+        }
+        
+        .grocery-category {
+            margin-bottom: 20px;
+        }
+        
+        .grocery-category h4 {
+            background-color: var(--light-bg);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .grocery-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .grocery-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .grocery-item-name {
+            flex-grow: 1;
+        }
+        
+        .grocery-item-quantity {
+            color: #777;
+            font-size: 14px;
+        }
+        
+        .recipe-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .recipe-header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 15px;
+        }
+        
+        .recipe-content {
+            padding: 20px;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .recipe-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background-color: var(--light-bg);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .recipe-ingredients {
+            margin-bottom: 20px;
+        }
+        
+        .recipe-ingredients h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .recipe-ingredients ul {
+            padding-left: 20px;
+        }
+        
+        .recipe-ingredients li {
+            margin-bottom: 5px;
+        }
+        
+        .recipe-steps h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .recipe-steps ol {
+            padding-left: 20px;
+        }
+        
+        .recipe-steps li {
+            margin-bottom: 10px;
+        }
+        
+        .tips-list {
+            list-style-type: none;
+        }
+        
+        .tips-list li {
+            margin-bottom: 15px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .tips-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        
+        footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            margin-top: 40px;
+        }
+        
+        .footer-text {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .client-info {
+                align-items: flex-start;
+                margin-top: 10px;
+            }
+            
+            .water-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="logo">Nutri<span>Plan</span></div>
+                <div class="client-info">
+                    <div class="client-name">Carlos Silva</div>
+                    <div class="plan-date">Plano Iniciado em: 05/04/2025</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="section">
+            <h2 class="section-title">Resumo Personalizado</h2>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h4>Dados Pessoais</h4>
+                    <p>34 anos, Masculino</p>
+                    <p>Altura: 1,78m</p>
+                    <p>Peso: 82kg</p>
+                    <p>IMC: 25,9 kg/m² (Sobrepeso)</p>
+                </div>
+                
+                <div class="summary-card">
+                    <h4>Objetivo</h4>
+                    <p>Perda de peso e melhora da composição corporal</p>
+                    <p>Meta: 76kg em 3 meses</p>
+                    <div class="goal-tag">Redução de gordura</div>
+                </div>
+                
+                <div class="summary-card">
+                    <h4>Atividade Física</h4>
+                    <p>Nível: Moderado</p>
+                    <p>Treino de musculação: 4x/semana</p>
+                    <p>Corrida: 2x/semana</p>
+                </div>
+                
+                <div class="summary-card">
+                    <h4>Preferências Alimentares</h4>
+                    <p>Prefere refeições práticas</p>
+                    <p>Gosta de carnes, ovos e vegetais</p>
+                    <p>Evita frituras e doces</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Diagnóstico Personalizado</h2>
+            <p>Com base na anamnese realizada, identificamos os seguintes pontos-chave para o seu plano alimentar:</p>
+            
+            <div class="diagnostic-results">
+                <div class="diagnostic-card">
+                    <h4>Perfil Metabólico</h4>
+                    <p>Taxa Metabólica Basal: 1720 kcal/dia</p>
+                    <p>Gasto Energético Total: 2580 kcal/dia</p>
+                    <p>Meta Calórica para Emagrecimento: 2100 kcal/dia</p>
+                </div>
+                
+                <div class="diagnostic-card">
+                    <h4>Padrões Identificados</h4>
+                    <p>• Consumo excessivo de carboidratos simples à noite</p>
+                    <p>• Baixa ingestão proteica em lanches</p>
+                    <p>• Poucas refeições durante o dia (intervalos longos)</p>
+                    <p>• Desidratação frequente durante treinos</p>
+                </div>
+                
+                <div class="diagnostic-card">
+                    <h4>Possíveis Deficiências</h4>
+                    <p>• Vitamina D (exames mostram níveis baixos)</p>
+                    <p>• Ômega-3 (baixo consumo de peixes)</p>
+                    <p>• Magnésio (relatou cãibras frequentes)</p>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <!-- Placeholder para gráfico de macronutrientes -->
+            </div>
+            
+            <h3 class="subsection-title">Distribuição Nutricional Recomendada</h3>
+            <div class="nutrition-info">
+                <div class="nutrition-box">
+                    <h4>Proteínas</h4>
+                    <p>30%</p>
+                    <p>158g</p>
+                </div>
+                
+                <div class="nutrition-box">
+                    <h4>Carboidratos</h4>
+                    <p>45%</p>
+                    <p>236g</p>
+                </div>
+                
+                <div class="nutrition-box">
+                    <h4>Gorduras</h4>
+                    <p>25%</p>
+                    <p>58g</p>
+                </div>
+                
+                <div class="nutrition-box">
+                    <h4>Calorias</h4>
+                    <p>2100</p>
+                    <p>kcal</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Metas por Refeição</h2>
+            <p>Cada refeição tem um objetivo específico para otimizar seus resultados:</p>
+            
+            <div class="meal-goals">
+                <h4><span>1</span>Café da Manhã (7:00)</h4>
+                <div class="meal-goals-details">
+                    <div class="meal-goals-item">
+                        <h5>Objetivo</h5>
+                        <p>Quebrar o jejum noturno e fornecer energia estável para a manhã</p>
+                    </div>
+                    
+                    <div class="meal-goals-item">
+                        <h5>Macronutrientes</h5>
+                        <p>30% Proteínas, 50% Carboidratos, 20% Gorduras</p>
+                    </div>
+                    
+                    <div class="meal-goals-item">
+                        <h5>Calorias</h5>
+                        <p>530 kcal (25% do total diário)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="meal-goals">
+                <h4><span>2</span>Lanche da Manhã (10:00)</h4>
+                <div class="meal-goals-details">
+                    <div class="meal-goals-item">
+                        <h5>Objetivo</h5>
+                        <p>Manter energia e controlar a fome até o almoço</p>
+                    </div>
+                    
+                    <div class="meal-goals-item">
+                        <h5>Macronutrientes</h5>
+                        <p>40% Proteínas, 40% Carboidratos, 20% Gorduras</p>
+                    </div>
+                    
+                    <div class="meal-goals-item">
+                        <h5>Calorias</h5>
+                        <p>315 kcal (15% do total diário)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="meal-goals">
+                <h4><span>3</span>Almoço (13:00)</h4>
+                <div class="meal-goals-details">
+                    <div class="meal-goals-item">
+                        <h5>Objetivo</h5>
+                        <p>Refeição principal com alta densidade nutricional</p>
+                    </div>
+                    
+                    <div class="meal-goals-item">
+                        <h5>Macronutrientes</h5>
+                        <p>35% Proteínas, 40% Carboidratos, 25% Gorduras</p>
+                    </div>
+                    
+                    <div class="meal-goals-item">
+                        <h5>Calorias</h5>
+                        <p>630 kcal (30% do total diário)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="meal-goals">
+                <h4><span>4</span>Lanche Pré-Treino (16:30)</h4>
+                <div class="meal-goals-details">
+                    <div class="meal-goals-item">
+                        <h5>Objetivo</h5>
+                        <p>Fornecer energia para o treino sem desconforto digestivo</p>
+                    </div>
+                    
+                    <div class="meal-goals-item">
+                        <h5>Macronutrientes</h5>
+                        <p>20% Proteínas, 70% Carboidratos, 10% Gorduras</p>
+                    </div>
+                    
+                    <div class="meal-goals-item">
+                        <h5>Calorias</h5>
+                        <p>210 kcal (10% do total diário)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="meal-goals">
+                <h4><span>5</span>Jantar (20:00)</h4>
+                <div class="meal-goals-details">
+                    <div class="meal-goals-item">
+                        <h5>Objetivo</h5>
+                        <p>Promover recuperação muscular e satisfação sem sobrecarregar a digestão</p>
+                    </div>
+                    
+                    <div class="meal-goals-item">
+                        <h5>Macronutrientes</h5>
+                        <p>40% Proteínas, 30% Carboidratos, 30% Gorduras</p>
+                    </div>
+                    
+                    <div class="meal-goals-item">
+                        <h5>Calorias</h5>
+                        <p>415 kcal (20% do total diário)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Plano Alimentar Semanal</h2>
+            
+            <div class="days-tabs">
+                <button class="day-tab active">Segunda</button>
+                <button class="day-tab">Terça</button>
+                <button class="day-tab">Quarta</button>
+                <button class="day-tab">Quinta</button>
+                <button class="day-tab">Sexta</button>
+                <button class="day-tab">Sábado</button>
+                <button class="day-tab">Domingo</button>
+            </div>
+            
+            <div class="meals-container">
+                <div class="meal-card">
+                    <div class="meal-header">
+                        <h3>Café da Manhã</h3>
+                        <span class="meal-time">7:00</span>
+                    </div>
+                    <div class="meal-content">
+                        <div class="meal-objective">
+                            <strong>Objetivo:</strong> Fornecer energia para o treino sem desconforto digestivo> Quebrar o jejum noturno e fornecer energia estável para a manhã
+                        </div>
+                        <div class="food-item">
+                            <span class="food-name">Omelete de claras com vegetais</span>
+                            <span class="food-portion">3 claras + 30g de queijo branco + vegetais</span>
+                        </div>
+                        <div class="food-item">
+                            <span class="food-name">Aveia em flocos</span>
+                            <span class="food-portion">40g</span>
+                        </div>
+                        <div class="food-item">
+                            <span class="food-name">Banana</span>
+                            <span class="food-portion">1 unidade média</span>
+                        </div>
+                        <div class="food-item">
+                            <span class="food-name">Café preto</span>
+                            <span class="food-portion">200ml</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="meal-card">
+                    <div class="meal-header">
+                        <h3>Lanche da Manhã</h3>
+                        <span class="meal-time">10:00</span>
+                    </div>
+                    <div class="meal-content">
+                        <div class="meal-objective">
+                            <strong>Objetivo:</strong> Manter energia e controlar a fome até o almoço
+                        </div>
+                        <div class="food-item">
+                            <span class="food-name">Iogurte grego natural</span>
+                            <span class="food-portion">170g</span>
+                        </div>
+                        <div class="food-item">
+                            <span class="food-name">Mix de frutas vermelhas</span>
+                            <span class="food-portion">80g</span>
+                        </div>
+                        <div class="food-item">
+                            <span class="food-name">Castanhas (amêndoas)</span>
+                            <span class="food-portion">15g (aproximadamente 10 unidades)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="meal-card">
+                    <div class="meal-header">
+                        <h3>Almoço</h3>
+                        <span class="meal-time">13:00</span>
+                    </div>
+                    <div class="meal-content">
+                        <div class="meal-objective">
+                            <strong>Objetivo:</strong> Refeição principal com alta densidade nutricional
+                        </div>
+                        <div class="food-item">
+                            <span class="food-name">Peito de frango grelhado</span>
+                            <span class="food-portion">150g</span>
+                        </div>
+                        <div class="food-item">
+                            <span class="food-name">Arroz integral</span>
+                            <span class="food-portion">80g (cru)</span>
+                        </div>
+                        <div class="food-item">
+                            <span class="food-name">Feijão preto</span>
+                            <span class="food-portion">60g (cru)</span>
+                        </div>
+                        <div class="food-item">
+                            <span class="food-name">Salada de folhas verdes variadas</span>
+                            <span class="food-portion">À vontade</span>
+                        </div>
+                        <div class="food-item">
+                            <span class="food-name">Azeite de oliva extra virgem</span>
+                            <span class="food-portion">1 colher de chá</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="meal-card">
+                    <div class="meal-header">
+                        <h3>Lanche Pré-Treino</h3>
+                        <span class="meal-time">16:30</span>
+                    </div>
+                    <div class="meal-content">
+                        <div class="meal-objective">
+                            <strong>Objetivo:</strong

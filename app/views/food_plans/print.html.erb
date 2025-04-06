@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plano Alimentar - <%= @food_plan.anamnesis.user.profile&.name || 'Cliente' %></title>
+  <style>
+    @page {
+      size: A4;
+      margin: 0;
+    }
+    
+    :root {
+      --primary-color: #2C7D54;
+      --secondary-color: #37B76A;
+      --accent-color: #F9A826;
+      --light-bg: #F5F9F7;
+      --dark-text: #333333;
+      --light-text: #FFFFFF;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: #fff;
+      color: var(--dark-text);
+      line-height: 1.6;
+      font-size: 12pt;
+    }
+    
+    .container {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 0;
+      background-color: white;
+    }
+    
+    /* Estilos para a capa */
+    .cover-page {
+      width: 210mm;
+      height: 297mm;
+      position: relative;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      page-break-after: always;
+      overflow: hidden;
+    }
+    
+    .cover-background {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40%;
+      height: 100%;
+      background-color: #f8f8f8;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .cover-background::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none"/><path d="M0,50 Q25,25 50,50 T100,50" stroke="%232C7D54" stroke-width="2" fill="none" /></svg>');
+      background-size: 100px 100px;
+      opacity: 0.1;
+    }
+    
+    .cover-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+      padding: 40px;
+    }
+    
+    .cover-logo {
+      text-align: center;
+      margin-top: 40px;
+    }
+    
+    .cover-logo img {
+      max-width: 250px;
+      height: auto;
+    }
+    
+    .cover-title {
+      text-align: center;
+      margin: auto 0;
+      padding: 0 20px;
+    }
+    
+    .cover-title h1 {
+      font-size: 60px;
+      font-weight: 700;
+      color: #8B2635;
+      margin-bottom: 10px;
+      font-family: 'Georgia', serif;
+      line-height: 1.2;
+    }
+    
+    .cover-title h2 {
+      font-size: 80px;
+      font-weight: 700;
+      color: #8B2635;
+      margin-bottom: 20px;
+      font-family: 'Georgia', serif;
+      line-height: 1.2;
+    }
+    
+    .cover-client {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .cover-client h3 {
+      font-size: 28px;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    
+    .cover-client p {
+      font-size: 20px;
+      color: #666;
+    }
+    
+    .cover-decoration {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 40%;
+      height: 40%;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23F5F9F7" stroke="%232C7D54" stroke-width="1"/></svg>');
+      background-size: cover;
+      opacity: 0.2;
+      z-index: 0;
+    }
+    
+    header {
+      background-color: var(--primary-color);
+      color: var(--light-text);
+      padding: 20px;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      margin-bottom: 20px;
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    .logo i {
+      margin-right: 5px;
+    }
+    
+    .logo span {
+      color: var(--accent-color);
+    }
+    
+    .client-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    
+    .client-name {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    
+    .plan-date {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .section {
+      background-color: white;
+      margin: 20px 0;
+      border-radius: var(--border-radius);
+      padding: 25px;
+      box-shadow: var(--box-shadow);
+      page-break-inside: avoid;
+    }
+    
+    .section-title {
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--secondary-color);
+      font-size: 22px;
+      font-weight: bold;
+    }
+    
+    .section-title i {
+      margin-right: 10px;
+    }
+    
+    .subsection-title {
+      color: var(--secondary-color);
+      margin: 15px 0 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    .subsection-title i {
+      margin-right: 10px;
+    }
+    
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .summary-card {
+      background-color: var(--light-bg);
+      padding: 15px;
+      border-radius: var(--border-radius);
+      border-left: 4px solid var(--secondary-color);
+    }
+    
+    .summary-card h4 {
+      color: var(--primary-color);
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    
+    .summary-card p {
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    
+    .goal-tag {
+      display: inline-block;
+      background-color: var(--accent-color);
+      color: var(--light-text);
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    
+    .diagnostic-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .diagnostic-card {
+      background-color: var(--light-bg);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+    
+    .diagnostic-card h4 {
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    .diagnostic-card ul {
+      margin-left: 20px;
+    }
+    
+    .diagnostic-card li {
+      margin-bottom: 5px;
+    }
+    
+    .nutrition-info {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    
+    .nutrition-box {
+      width: 22%;
+      text-align: center;
+      background-color: white;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      transition: transform 0.3s ease;
+    }
+    
+    .nutrition-box:hover {
+      transform: translateY(-5px);
+    }
+    
+    .nutrition-box.protein {
+      border-top: 4px solid #3498db;
+    }
+    
+    .nutrition-box.carbs {
+      border-top: 4px solid #e74c3c;
+    }
+    
+    .nutrition-box.fat {
+      border-top: 4px solid #f39c12;
+    }
+    
+    .nutrition-box.calories {
+      border-top: 4px solid #2ecc71;
+    }
+    
+    .nutrition-box h4 {
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    .nutrition-box .value {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--dark-text);
+      margin: 10px 0;
+    }
+    
+    .macro-chart {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: conic-gradient(
+        #3498db 0% <%= @macros[:protein_percentage] %>%, 
+        #e74c3c <%= @macros[:protein_percentage] %>% <%= @macros[:protein_percentage] + @macros[:carb_percentage] %>%, 
+        #f39c12 <%= @macros[:protein_percentage] + @macros[:carb_percentage] %>% 100%
+      );
+      margin: 0 auto 20px;
+    }
+    
+    .macro-chart-legend {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    
+    .macro-chart-legend-item {
+      display: flex;
+      align-items: center;
+      margin: 0 10px;
+      font-size: 12px;
+    }
+    
+    .macro-chart-legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      margin-right: 5px;
+    }
+    
+    .meal-card {
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    
+    .meal-header {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .meal-header h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+    
+    .meal-time {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    
+    .meal-content {
+      padding: 15px;
+    }
+    
+    .meal-objective {
+      font-style: italic;
+      color: #666;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #ddd;
+    }
+    
+    .food-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .food-item:last-child {
+      border-bottom: none;
+    }
+    
+    .food-name {
+      font-weight: 500;
+    }
+    
+    .food-portion {
+      color: #666;
+    }
+    
+    .food-substitutes {
+      margin-top: 10px;
+    }
+    
+    .substitutes-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .substitutes-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .water-plan {
+      background-color: #e1f5fe;
+      border-radius: var(--border-radius);
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .water-plan h3 {
+      color: #0288d1;
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    .water-plan .amount {
+      font-size: 28px;
+      font-weight: bold;
+      color: #0288d1;
+      margin: 15px 0;
+    }
+    
+    .water-plan .recommendation {
+      color: #555;
+      font-style: italic;
+      font-size: 14px;
+    }
+    
+    .observations {
+      background-color: var(--light-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .observation-content {
+      margin-top: 15px;
+    }
+    
+    .observation-content p {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+    }
+    
+    .observation-icon {
+      margin-right: 10px;
+      color: var(--primary-color);
+      font-style: normal;
+    }
+    
+    .disclaimer {
+      background-color: #fff3cd;
+      border-radius: var(--border-radius);
+      padding: 15px;
+      margin: 20px 0;
+    }
+    
+    .disclaimer h3 {
+      color: #856404;
+      margin-bottom: 10px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .disclaimer h3::before {
+      content: "⚠️";
+      margin-right: 10px;
+      font-size: 18px;
+    }
+    
+    .disclaimer p {
+      color: #856404;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    
+    footer {
+      background-color: var(--primary-color);
+      color: var(--light-text);
+      padding: 20px 0;
+      text-align: center;
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+      margin-top: 30px;
+    }
+    
+    .legal-notice {
+      font-size: 12px;
+      opacity: 0.8;
+      max-width: 80%;
+      margin: 10px auto 0;
+    }
+    
+    .content-page {
+      padding: 20px;
+    }
+    
+    @media print {
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: white;
+      }
+      
+      .container {
+        width: 100%;
+        box-shadow: none;
+      }
+      
+      header, footer {
+        background-color: var(--primary-color) !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Capa do Plano Alimentar -->
+    <div class="cover-page">
+      <div class="cover-background"></div>
+      <div class="cover-content">
+        <div class="cover-logo">
+          <!-- Logo do NutriPlan -->
+          <div class="flex items-center justify-center">
+            <%= image_tag "logo.png", alt: "NutriPlan Logo", class: "h-16 w-auto" %>
+            <h2 class="text-3xl font-bold text-green-600 ml-2">NutriPlan</h2>
+          </div>
+        </div>
+        
+        <div class="cover-title">
+          <h1>Plano</h1>
+          <h2>alimentar</h2>
+        </div>
+        
+        <div class="cover-client">
+          <h3><%= @food_plan.anamnesis.user.profile&.name || 'Cliente' %></h3>
+          <p><%= l Date.today, format: :long %></p>
+        </div>
+      </div>
+      <div class="cover-decoration"></div>
+    </div>
+    
+    <!-- Conteúdo do plano alimentar -->
+    <div class="content-page">
+      <header>
+        <div class="header-content">
+          <div class="logo">
+            <i class="fas fa-leaf logo-icon"></i> NutriPlan
+          </div>
+          <div class="client-info">
+            <div class="client-name"><%= @food_plan.anamnesis.user.profile&.name || 'Cliente' %></div>
+            <div class="plan-date">Plano Nutricional - <%= l @food_plan.created_at.to_date, format: :long %></div>
+          </div>
+        </div>
+      </header>
+      
+      <div class="section">
+        <h2 class="section-title"><i class="fas fa-user-circle mr-2"></i>Informações Pessoais</h2>
+        <div class="summary-grid">
+          <div class="summary-card">
+            <h4>Dados Pessoais</h4>
+            <% if @food_plan.anamnesis.age.present? %>
+              <p>Idade: <%= @food_plan.anamnesis.age %> anos</p>
+            <% end %>
+            <% if @food_plan.anamnesis.health_data.present? %>
+              <% if @food_plan.anamnesis.health_data['gender'].present? %>
+                <p>Gênero: 
+                  <% gender_map = { 'male' => 'Masculino', 'female' => 'Feminino', 'other' => 'Outro', 'prefer_not_to_say' => 'Prefere não informar' } %>
+                  <%= gender_map[@food_plan.anamnesis.health_data['gender']] || @food_plan.anamnesis.health_data['gender'] %>
+                </p>
+              <% end %>
+              <% if @food_plan.anamnesis.health_data['height'].present? && @food_plan.anamnesis.health_data['weight'].present? %>
+                <p>Altura: <%= @food_plan.anamnesis.health_data['height'] %> cm</p>
+                <p>Peso: <%= @food_plan.anamnesis.health_data['weight'] %> kg</p>
+              <% end %>
+            <% end %>
+          </div>
+          
+          <div class="summary-card">
+            <h4>Objetivos</h4>
+            <% if @food_plan.anamnesis.goals.present? && @food_plan.anamnesis.goals['weight_goal'].present? %>
+              <% weight_goals = {
+                'lose' => 'Perder peso',
+                'maintain' => 'Manter peso',
+                'gain' => 'Ganhar peso'
+              } %>
+              <p>Objetivo: <%= weight_goals[@food_plan.anamnesis.goals['weight_goal']] || @food_plan.anamnesis.goals['weight_goal'] %></p>
+            <% end %>
+            <% if @food_plan.anamnesis.goals.present? && @food_plan.anamnesis.goals['health_objectives'].present? %>
+              <p>Objetivos de saúde: <%= @food_plan.anamnesis.goals['health_objectives'] %></p>
+            <% end %>
+            <% if @food_plan.anamnesis.target_date.present? %>
+              <p>Meta para: <%= @food_plan.anamnesis.target_date %></p>
+            <% end %>
+          </div>
+          
+          <% if @food_plan.anamnesis.dietary_preferences.present? %>
+            <div class="summary-card">
+              <h4>Preferências Alimentares</h4>
+              <% if @food_plan.anamnesis.dietary_preferences['diet_type'].present? %>
+                <% diet_types = {
+                  'omnivore' => 'Onívoro',
+                  'vegetarian' => 'Vegetariano',
+                  'vegan' => 'Vegano',
+                  'pescatarian' => 'Pescetariano',
+                  'paleo' => 'Paleo',
+                  'keto' => 'Cetogênico',
+                  'gluten_free' => 'Sem Glúten',
+                  'lactose_free' => 'Sem Lactose',
+                  'other' => 'Outro'
+                } %>
+                <p>Tipo de dieta: <%= diet_types[@food_plan.anamnesis.dietary_preferences['diet_type']] || @food_plan.anamnesis.dietary_preferences['diet_type'] %></p>
+              <% end %>
+              <% if @food_plan.anamnesis.dietary_preferences['favorite_foods'].present? %>
+                <p>Alimentos favoritos: <%= @food_plan.anamnesis.dietary_preferences['favorite_foods'] %></p>
+              <% end %>
+              <% if @food_plan.anamnesis.dietary_preferences['disliked_foods'].present? %>
+                <p>Alimentos que não gosta: <%= @food_plan.anamnesis.dietary_preferences['disliked_foods'] %></p>
+              <% end %>
+            </div>
+          <% end %>
+          
+          <% if @food_plan.anamnesis.restrictions.present? %>
+            <div class="summary-card">
+              <h4>Restrições</h4>
+              <% if @food_plan.anamnesis.restrictions['food_allergies'].present? %>
+                <p>Alergias alimentares: <%= @food_plan.anamnesis.restrictions['food_allergies'] %></p>
+              <% end %>
+              <% if @food_plan.anamnesis.restrictions['food_intolerances'].present? %>
+                <p>Intolerâncias alimentares: <%= @food_plan.anamnesis.restrictions['food_intolerances'] %></p>
+              <% end %>
+              <% if @food_plan.anamnesis.restrictions['restricted_foods'].present? %>
+                <p>Alimentos restritos: <%= @food_plan.anamnesis.restrictions['restricted_foods'] %></p>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h2 class="section-title"><i class="fas fa-chart-pie mr-2"></i>Necessidades Nutricionais</h2>
+        <% if @macros.present? %>
+          <div class="macro-chart-container" style="text-align: center; margin-bottom: 20px;">
+            <div class="macro-chart"></div>
+          </div>
+          <div class="macro-chart-legend">
+            <div class="macro-chart-legend-item">
+              <div class="macro-chart-legend-color" style="background-color: #3498db;"></div>
+              <span>Proteínas (<%= @macros[:protein_percentage] %>%)</span>
+            </div>
+            <div class="macro-chart-legend-item">
+              <div class="macro-chart-legend-color" style="background-color: #e74c3c;"></div>
+              <span>Carboidratos (<%= @macros[:carb_percentage] %>%)</span>
+            </div>
+            <div class="macro-chart-legend-item">
+              <div class="macro-chart-legend-color" style="background-color: #f39c12;"></div>
+              <span>Gorduras (<%= @macros[:fat_percentage] %>%)</span>
+            </div>
+          </div>
+          <div class="nutrition-info">
+            <div class="nutrition-box protein">
+              <h4>Proteínas</h4>
+              <p class="value"><%= @macros[:protein] %>g</p>
+              <p><%= @macros[:protein_percentage] %>%</p>
+            </div>
+            
+            <div class="nutrition-box carbs">
+              <h4>Carboidratos</h4>
+              <p class="value"><%= @macros[:carbs] %>g</p>
+              <p><%= @macros[:carb_percentage] %>%</p>
+            </div>
+            
+            <div class="nutrition-box fat">
+              <h4>Gorduras</h4>
+              <p class="value"><%= @macros[:fat] %>g</p>
+              <p><%= @macros[:fat_percentage] %>%</p>
+            </div>
+            
+            <div class="nutrition-box calories">
+              <h4>Calorias</h4>
+              <p class="value"><%= @macros[:calories] %></p>
+              <p>kcal/dia</p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="section">
+        <h2 class="section-title"><i class="fas fa-utensils mr-2"></i>Plano Alimentar Diário</h2>
+        
+        <% @food_plan.meals.order(:time).each do |meal| %>
+          <div class="meal-card">
+            <div class="meal-header" style="background-color: <%= meal_color(meal.meal_type) if meal.meal_type.present? %>;">
+              <h3><%= meal.name %></h3>
+              <span class="meal-time"><%= meal.time %></span>
+            </div>
+            <div class="meal-content">
+              <% if meal.objective.present? %>
+                <div class="meal-objective">
+                  <%= meal.objective %>
+                </div>
+              <% end %>
+              
+              <% meal.food_items.each do |item| %>
+                <div class="food-item">
+                  <span class="food-name"><%= item.name %></span>
+                  <span class="food-portion"><%= item.quantity %> <%= item.unit %></span>
+                </div>
+                <% if item.has_substitutes? %>
+                  <div class="food-substitutes">
+                    <p class="substitutes-title">Opções de substituição:</p>
+                    <ul class="substitutes-list">
+                      <% item.substitutes.each do |substitute| %>
+                        <li><%= substitute["name"] || substitute[:name] %> - <%= substitute["quantity"] || substitute[:quantity] %> <%= substitute["unit"] || substitute[:unit] %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+      <% if @food_plan.water_plan.present? %>
+        <div class="water-plan">
+          <h3><i class="fas fa-tint mr-2"></i>Plano de Hidratação</h3>
+          <div class="amount"><%= @food_plan.water_plan.daily_amount %> litros/dia</div>
+          <div class="recommendation">
+            <% if @food_plan.water_plan.recommendation.present? %>
+              <%= @food_plan.water_plan.recommendation %>
+            <% else %>
+              Distribua o consumo ao longo do dia. Aumente a ingestão em dias quentes ou de atividade física intensa.
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      
+      <% if @food_plan.description.present? %>
+        <div class="observations">
+          <h3 class="subsection-title"><i class="fas fa-clipboard-list mr-2"></i>Observações e Recomendações</h3>
+          <div class="observation-content">
+            <% @food_plan.description.split("\n").each do |paragraph| %>
+              <% if paragraph.present? %>
+                <p><i class="observation-icon">•</i> <%= paragraph %></p>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      
+      <footer>
+        <p>NutriPlan - Plano Nutricional Personalizado</p>
+        <p><i class="fas fa-calendar-alt mr-1"></i> Este documento foi gerado em <%= l DateTime.now, format: :long %></p>
+        <div class="legal-notice">
+          AVISO LEGAL: Este plano nutricional é fornecido apenas para fins informativos e educacionais. 
+          Não é destinado a diagnosticar, tratar, curar ou prevenir qualquer doença ou condição de saúde. 
+          Os resultados podem variar de pessoa para pessoa. Recomendamos consultar um nutricionista registrado 
+          ou profissional de saúde antes de iniciar qualquer programa alimentar.
+        </div>
+      </footer>
+    </div>
+  </div>
+  
+  <script>
+    window.onload = function() {
+      window.print();
+    };
+  </script>
+</body>
+</html>

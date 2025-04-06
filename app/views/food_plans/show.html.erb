@@ -1,10 +1,27 @@
 <div class="max-w-4xl mx-auto my-8 px-4">
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-gray-800"><%= @food_plan.name %></h1>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800"><i class="fas fa-utensils text-green-600 mr-2"></i><%= @food_plan.name %></h1>
+      <% if @food_plan.anamnesis %>
+        <p class="text-md text-green-600 mt-1">
+          <i class="fas fa-clipboard-list mr-1"></i>
+          Baseado em: <%= @food_plan.anamnesis.title %>
+          <% if @food_plan.anamnesis.client_name.present? %>
+            <span class="text-blue-600 ml-1">
+              <i class="fas fa-user mr-1"></i>
+              <%= @food_plan.anamnesis.client_name %>
+            </span>
+          <% end %>
+        </p>
+      <% end %>
+    </div>
     <div class="flex space-x-2">
-      <%= link_to "Editar", edit_food_plan_path(@food_plan), class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition" %>
-      <%= link_to "Voltar", food_plans_path, class: "px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition" %>
-      <%= link_to "Gerar PDF", generate_pdf_food_plan_path(@food_plan), method: :post, class: "px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition" %>
+      <%= link_to food_plans_path, class: "px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition flex items-center" do %>
+        <i class="fas fa-arrow-left mr-2"></i> Voltar
+      <% end %>
+      <%= link_to print_food_plan_path(@food_plan), class: "px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition flex items-center", target: "_blank" do %>
+        <i class="fas fa-print mr-2"></i> Imprimir
+      <% end %>
     </div>
   </div>
 
@@ -12,7 +29,7 @@
   <% if @food_plan.description.present? && @food_plan.description.include?("AVALIAÇÃO NUTRICIONAL") %>
     <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 border-l-4 border-green-500">
       <div class="p-6">
-        <h2 class="text-xl font-semibold mb-4 text-green-700">Avaliação Técnica Nutricional</h2>
+        <h2 class="text-xl font-semibold mb-4 text-green-700"><i class="fas fa-clipboard-check mr-2"></i>Avaliação Técnica Nutricional</h2>
         <div class="prose prose-sm max-w-none">
           <% description_parts = @food_plan.description.split("\n\nPlano alimentar gerado em") %>
           <% assessment = description_parts.first %>
@@ -95,24 +112,24 @@
     <div class="p-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div class="bg-gray-50 p-3 rounded">
-          <p class="text-sm text-gray-500">Período</p>
-          <p class="font-medium"><%= l @food_plan.start_date, format: :long %> a <%= l @food_plan.end_date, format: :long %></p>
+          <p class="text-sm text-gray-500"><i class="fas fa-calendar-alt text-green-600 mr-1"></i> Período</p>
+          <p class="font-medium"><%= l @food_plan.start_date, format: :short %> - <%= l @food_plan.end_date, format: :short %></p>
         </div>
         
         <div class="bg-gray-50 p-3 rounded">
-          <p class="text-sm text-gray-500">Calorias Diárias</p>
-          <p class="font-medium"><%= @food_plan.calories %> kcal</p>
+          <p class="text-sm text-gray-500"><i class="fas fa-fire-alt text-orange-600 mr-1"></i> Calorias</p>
+          <p class="font-medium"><%= @food_plan.calories %> kcal/dia</p>
         </div>
         
         <div class="bg-gray-50 p-3 rounded">
-          <p class="text-sm text-gray-500">Refeições</p>
+          <p class="text-sm text-gray-500"><i class="fas fa-clock text-blue-600 mr-1"></i> Refeições</p>
           <p class="font-medium"><%= @food_plan.meals.count %> por dia</p>
         </div>
       </div>
       
       <!-- Macronutrientes -->
       <% if @macros %>
-        <h3 class="text-lg font-semibold mb-3 text-green-700">Distribuição de Macronutrientes</h3>
+        <h3 class="text-lg font-semibold mb-3 text-green-700"><i class="fas fa-chart-pie mr-2"></i>Distribuição de Macronutrientes</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div class="bg-blue-50 p-4 rounded-lg">
             <h5 class="font-medium text-blue-800 mb-1">Proteínas</h5>
@@ -137,7 +154,7 @@
   </div>
 
   <!-- Refeições -->
-  <h2 class="text-xl font-semibold mb-4 text-green-700">Refeições</h2>
+  <h2 class="text-xl font-semibold mb-4 text-green-700"><i class="fas fa-utensils mr-2"></i>Refeições</h2>
   
   <div class="space-y-4">
     <% @food_plan.meals.order(:time).each do |meal| %>
@@ -153,7 +170,23 @@
           <h4 class="font-medium text-gray-700 mb-2">Alimentos:</h4>
           <ul class="list-disc pl-5 space-y-1">
             <% meal.food_items.each do |item| %>
-              <li><%= item.name %> - <%= item.quantity %> <%= item.unit %></li>
+              <li class="mb-2">
+                <div class="flex justify-between">
+                  <span class="font-medium"><%= item.name %></span>
+                  <span class="text-gray-600"><%= item.quantity %> <%= item.unit %></span>
+                </div>
+                
+                <% if item.substitutes.present? %>
+                  <div class="mt-1 ml-4 text-sm">
+                    <p class="text-green-600 font-medium">Opções de substituição:</p>
+                    <ul class="list-disc pl-4 text-gray-700">
+                      <% item.substitutes.each do |substitute| %>
+                        <li><%= substitute["name"] || substitute[:name] %> - <%= substitute["quantity"] || substitute[:quantity] %> <%= substitute["unit"] || substitute[:unit] %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+                <% end %>
+              </li>
             <% end %>
           </ul>
         </div>
@@ -163,7 +196,7 @@
   
   <!-- Plano de Hidratação -->
   <% if @food_plan.water_plan %>
-    <h2 class="text-xl font-semibold my-4 text-green-700">Plano de Hidratação</h2>
+    <h2 class="text-xl font-semibold my-4 text-green-700"><i class="fas fa-tint mr-2"></i>Plano de Hidratação</h2>
     <div class="bg-white rounded-lg shadow overflow-hidden">
       <div class="p-5">
         <div class="flex items-center mb-3">

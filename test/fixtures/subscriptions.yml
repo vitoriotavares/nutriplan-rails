@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  plan: one
+  mercado_pago_subscription_id: MyString
+  status: MyString
+  expires_at: 2025-04-05 15:23:28
+
+two:
+  user: two
+  plan: two
+  mercado_pago_subscription_id: MyString
+  status: MyString
+  expires_at: 2025-04-05 15:23:28

@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  description: MyText
+  price: 9.99
+  food_plans_limit: 1
+  full_recipe_access: false
+  priority_support: false
+  mercado_pago_id: MyString
+
+two:
+  name: MyString
+  description: MyText
+  price: 9.99
+  food_plans_limit: 1
+  full_recipe_access: false
+  priority_support: false
+  mercado_pago_id: MyString

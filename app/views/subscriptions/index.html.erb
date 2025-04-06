@@ -1,0 +1,169 @@
+<div class="max-w-4xl mx-auto my-8 px-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800"><i class="fas fa-receipt text-green-600 mr-2"></i>Minhas Assinaturas</h1>
+    <div class="flex space-x-2">
+      <%= link_to plans_path, class: "px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition flex items-center" do %>
+        <i class="fas fa-tags mr-2"></i> Ver Planos
+      <% end %>
+    </div>
+  </div>
+
+  <% if @active_subscription %>
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 border-l-4 border-green-500">
+      <div class="p-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h2 class="text-xl font-semibold mb-2 text-green-700 flex items-center">
+              <i class="fas fa-check-circle mr-2"></i>
+              Assinatura Ativa
+            </h2>
+            <p class="text-gray-600 mb-4">
+              Plano <%= @active_subscription.plan.name %> - 
+              <span class="font-medium"><%= number_to_currency(@active_subscription.plan.price) %>/mês</span>
+            </p>
+          </div>
+          <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+            Ativo
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div class="bg-gray-50 p-4 rounded">
+            <p class="text-sm text-gray-500">Início do período atual</p>
+            <p class="font-medium"><%= l @active_subscription.current_period_start, format: :long %></p>
+          </div>
+          <div class="bg-gray-50 p-4 rounded">
+            <p class="text-sm text-gray-500">Fim do período atual</p>
+            <p class="font-medium"><%= l @active_subscription.current_period_end, format: :long %></p>
+          </div>
+          <div class="bg-gray-50 p-4 rounded">
+            <p class="text-sm text-gray-500">Renovação automática</p>
+            <p class="font-medium">
+              <% if @active_subscription.auto_renew %>
+                <i class="fas fa-check-circle text-green-500 mr-1"></i> Ativada
+              <% else %>
+                <i class="fas fa-times-circle text-red-500 mr-1"></i> Desativada
+              <% end %>
+            </p>
+          </div>
+        </div>
+        
+        <div class="border-t border-gray-200 pt-4">
+          <h3 class="font-medium text-gray-700 mb-2">Benefícios do seu plano:</h3>
+          <ul class="space-y-2">
+            <li class="flex items-start">
+              <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+              <span>
+                <% if @active_subscription.plan.food_plans_limit.zero? %>
+                  Planos alimentares ilimitados
+                <% else %>
+                  <%= pluralize(@active_subscription.plan.food_plans_limit, 'plano alimentar', 'planos alimentares') %> por mês
+                  <span class="text-sm text-gray-500">
+                    (Restantes: <%= current_user.remaining_food_plans || "Ilimitado" %>)
+                  </span>
+                <% end %>
+              </span>
+            </li>
+            
+            <% if @active_subscription.plan.full_recipe_access %>
+              <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                <span>Acesso a todas as receitas</span>
+              </li>
+            <% end %>
+            
+            <% if @active_subscription.plan.priority_support %>
+              <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                <span>Suporte prioritário</span>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+        
+        <div class="mt-6">
+          <%= button_to cancel_subscription_path(@active_subscription), method: :patch, data: { confirm: "Tem certeza que deseja cancelar sua assinatura? Você continuará tendo acesso até o fim do período atual." }, class: "px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition flex items-center" do %>
+            <i class="fas fa-times-circle mr-2"></i> Cancelar Assinatura
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 border-l-4 border-gray-300">
+      <div class="p-6">
+        <h2 class="text-xl font-semibold mb-4 text-gray-700 flex items-center">
+          <i class="fas fa-info-circle mr-2"></i>
+          Nenhuma assinatura ativa
+        </h2>
+        <p class="text-gray-600 mb-6">
+          Você está utilizando o plano gratuito do NutriPlan. Para acessar mais recursos e criar mais planos alimentares, considere assinar um de nossos planos premium.
+        </p>
+        
+        <%= link_to plans_path, class: "px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition inline-flex items-center" do %>
+          <i class="fas fa-arrow-right mr-2"></i> Ver planos disponíveis
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @subscriptions.any? %>
+    <h2 class="text-xl font-semibold text-gray-800 mb-4 mt-8">Histórico de Assinaturas</h2>
+    
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plano</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Período</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @subscriptions.each do |subscription| %>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900"><%= subscription.plan.name %></div>
+                <div class="text-sm text-gray-500"><%= number_to_currency(subscription.plan.price) %>/mês</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">
+                  <% if subscription.current_period_start && subscription.current_period_end %>
+                    <%= l subscription.current_period_start, format: :short %> - <%= l subscription.current_period_end, format: :short %>
+                  <% else %>
+                    -
+                  <% end %>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <% case subscription.status %>
+                <% when 'active' %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                    Ativa
+                  </span>
+                <% when 'canceled' %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                    Cancelada
+                  </span>
+                <% when 'pending' %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                    Pendente
+                  </span>
+                <% else %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                    <%= subscription.status.capitalize %>
+                  </span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= link_to subscription_path(subscription), class: "text-indigo-600 hover:text-indigo-900" do %>
+                  <i class="fas fa-eye mr-1"></i> Detalhes
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

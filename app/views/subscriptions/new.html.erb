@@ -1,0 +1,194 @@
+<div class="max-w-4xl mx-auto my-8 px-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800"><i class="fas fa-shopping-cart text-green-600 mr-2"></i>Assinar Plano</h1>
+    <div class="flex space-x-2">
+      <%= link_to plans_path, class: "px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition flex items-center" do %>
+        <i class="fas fa-arrow-left mr-2"></i> Voltar
+      <% end %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+    <div class="p-6">
+      <h2 class="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+        <i class="<%= @plan.price.zero? ? 'fas fa-seedling text-green-500' : 'fas fa-crown text-yellow-500' %> mr-2"></i>
+        Plano <%= @plan.name %>
+      </h2>
+      
+      <div class="mb-6">
+        <span class="text-3xl font-bold text-gray-900">
+          <%= @plan.price.zero? ? 'Grátis' : number_to_currency(@plan.price) %>
+        </span>
+        <% unless @plan.price.zero? %>
+          <span class="text-gray-500">/mês</span>
+        <% end %>
+      </div>
+      
+      <div class="prose prose-sm max-w-none text-gray-600 mb-6">
+        <p><%= @plan.description %></p>
+      </div>
+      
+      <div class="border-t border-gray-200 pt-4 mb-6">
+        <h3 class="font-medium text-gray-700 mb-2">Benefícios incluídos:</h3>
+        <ul class="space-y-3">
+          <li class="flex items-start">
+            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+            <span>
+              <% if @plan.food_plans_limit.zero? %>
+                Planos alimentares ilimitados
+              <% else %>
+                <%= pluralize(@plan.food_plans_limit, 'plano alimentar', 'planos alimentares') %> por mês
+              <% end %>
+            </span>
+          </li>
+          
+          <li class="flex items-start">
+            <i class="fas <%= @plan.full_recipe_access ? 'fa-check-circle text-green-500' : 'fa-times-circle text-gray-400' %> mt-1 mr-2"></i>
+            <span class="<%= @plan.full_recipe_access ? 'text-gray-700' : 'text-gray-500' %>">
+              <%= @plan.full_recipe_access ? 'Acesso a todas as receitas' : 'Acesso a receitas básicas' %>
+            </span>
+          </li>
+          
+          <li class="flex items-start">
+            <i class="fas <%= @plan.priority_support ? 'fa-check-circle text-green-500' : 'fa-times-circle text-gray-400' %> mt-1 mr-2"></i>
+            <span class="<%= @plan.priority_support ? 'text-gray-700' : 'text-gray-500' %>">
+              <%= @plan.priority_support ? 'Suporte prioritário' : 'Suporte básico por email' %>
+            </span>
+          </li>
+          
+          <li class="flex items-start">
+            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+            <span>Exportação para PDF</span>
+          </li>
+        </ul>
+      </div>
+      
+      <% if @plan.price.zero? %>
+        <%= form_with url: subscriptions_path, method: :post, class: "mt-6" do |f| %>
+          <%= f.hidden_field :plan_id, value: @plan.id %>
+          <%= f.submit "Ativar Plano Gratuito", class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" %>
+        <% end %>
+      <% else %>
+        <div class="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+          <h3 class="font-medium text-gray-700 mb-2">Informações de pagamento:</h3>
+          <ul class="space-y-2 text-sm text-gray-600">
+            <li class="flex items-start">
+              <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-2"></i>
+              <span>Você será redirecionado para o Mercado Pago para concluir seu pagamento de forma segura.</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-credit-card text-blue-500 mt-0.5 mr-2"></i>
+              <span>Aceitamos cartões de crédito, débito e boleto bancário.</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-calendar-alt text-blue-500 mt-0.5 mr-2"></i>
+              <span>Sua assinatura será renovada automaticamente a cada mês.</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-shield-alt text-blue-500 mt-0.5 mr-2"></i>
+              <span>Você pode cancelar a qualquer momento sem taxas adicionais.</span>
+            </li>
+          </ul>
+        </div>
+        
+        <%= form_with url: subscriptions_path, method: :post, class: "mt-6", data: { turbo: false } do |f| %>
+          <%= f.hidden_field :plan_id, value: @plan.id %>
+          
+          <div class="mb-6">
+            <div class="flex items-center">
+              <%= f.check_box :terms_accepted, required: true, class: "h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded", id: "terms_accepted", onchange: "toggleSubmitButton()" %>
+              <label for="terms_accepted" class="ml-2 block text-sm text-gray-700">
+                Eu concordo com os <%= link_to "Termos de Uso", terms_path, target: "_blank", class: "text-green-600 hover:text-green-800" %> e 
+                <%= link_to "Política de Privacidade", privacy_path, target: "_blank", class: "text-green-600 hover:text-green-800" %>
+              </label>
+            </div>
+          </div>
+          
+          <%= f.submit "Prosseguir para Pagamento", class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 cursor-not-allowed", id: "payment_button", disabled: true %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+  
+  <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+    <h3 class="font-medium text-gray-700 mb-3 flex items-center">
+      <i class="fas fa-question-circle text-blue-500 mr-2"></i>
+      Perguntas Frequentes
+    </h3>
+    
+    <div class="space-y-4 mt-4">
+      <div class="border border-gray-200 rounded-md overflow-hidden">
+        <button class="w-full flex justify-between items-center px-4 py-3 bg-white text-left focus:outline-none" onclick="toggleFAQ(this)">
+          <span class="font-medium text-gray-700">Como funciona a cobrança?</span>
+          <i class="fas fa-chevron-down text-gray-500"></i>
+        </button>
+        <div class="hidden px-4 py-3 bg-gray-50">
+          <p class="text-gray-600 text-sm">
+            A cobrança é feita mensalmente através do Mercado Pago. Você será cobrado no mesmo dia a cada mês. Por exemplo, se você assinar no dia 15, será cobrado novamente no dia 15 do próximo mês.
+          </p>
+        </div>
+      </div>
+      
+      <div class="border border-gray-200 rounded-md overflow-hidden">
+        <button class="w-full flex justify-between items-center px-4 py-3 bg-white text-left focus:outline-none" onclick="toggleFAQ(this)">
+          <span class="font-medium text-gray-700">Posso cancelar a qualquer momento?</span>
+          <i class="fas fa-chevron-down text-gray-500"></i>
+        </button>
+        <div class="hidden px-4 py-3 bg-gray-50">
+          <p class="text-gray-600 text-sm">
+            Sim, você pode cancelar sua assinatura a qualquer momento. Após o cancelamento, você continuará tendo acesso aos recursos premium até o final do período já pago.
+          </p>
+        </div>
+      </div>
+      
+      <div class="border border-gray-200 rounded-md overflow-hidden">
+        <button class="w-full flex justify-between items-center px-4 py-3 bg-white text-left focus:outline-none" onclick="toggleFAQ(this)">
+          <span class="font-medium text-gray-700">O que acontece se eu exceder o limite de planos alimentares?</span>
+          <i class="fas fa-chevron-down text-gray-500"></i>
+        </button>
+        <div class="hidden px-4 py-3 bg-gray-50">
+          <p class="text-gray-600 text-sm">
+            Se você atingir o limite de planos alimentares do seu plano, precisará esperar até o próximo ciclo de cobrança para criar novos planos, ou fazer um upgrade para um plano com mais recursos.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleFAQ(button) {
+    const content = button.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    if (content.classList.contains('hidden')) {
+      content.classList.remove('hidden');
+      icon.classList.remove('fa-chevron-down');
+      icon.classList.add('fa-chevron-up');
+    } else {
+      content.classList.add('hidden');
+      icon.classList.remove('fa-chevron-up');
+      icon.classList.add('fa-chevron-down');
+    }
+  }
+  
+  function toggleSubmitButton() {
+    const termsCheckbox = document.getElementById('terms_accepted');
+    const submitButton = document.getElementById('payment_button');
+    
+    if (termsCheckbox.checked) {
+      submitButton.disabled = false;
+      submitButton.classList.remove('bg-gray-400', 'hover:bg-gray-500', 'focus:ring-gray-400', 'cursor-not-allowed');
+      submitButton.classList.add('bg-green-600', 'hover:bg-green-700', 'focus:ring-green-500');
+    } else {
+      submitButton.disabled = true;
+      submitButton.classList.remove('bg-green-600', 'hover:bg-green-700', 'focus:ring-green-500');
+      submitButton.classList.add('bg-gray-400', 'hover:bg-gray-500', 'focus:ring-gray-400', 'cursor-not-allowed');
+    }
+  }
+  
+  // Inicializar o estado do botão quando a página carrega
+  document.addEventListener('DOMContentLoaded', function() {
+    toggleSubmitButton();
+  });
+</script>
