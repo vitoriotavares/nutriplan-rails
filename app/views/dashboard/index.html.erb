@@ -2,55 +2,76 @@
   <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
   
   <div class="grid md:grid-cols-2 gap-6">
+    <!-- Planos Alimentares -->
     <div class="bg-white p-6 rounded-lg shadow">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold">Meus Planos Alimentares</h2>
-        <%= link_to "Ver Todos", food_plans_path, class: "text-green-600 hover:text-green-800" %>
+        <h2 class="text-xl font-semibold"><i class="fas fa-utensils text-green-600 mr-2"></i>Meus Planos Alimentares</h2>
+        <%= link_to food_plans_path, class: "text-green-600 hover:text-green-800 flex items-center" do %>
+          <i class="fas fa-list mr-1"></i> Ver Todos
+        <% end %>
       </div>
       
-      <% if @food_plans.any? %>
+      <% if @food_plans&.any? %>
         <div class="space-y-4">
           <% @food_plans.each do |plan| %>
-            <div class="border-b pb-4 last:border-b-0 last:pb-0">
-              <div class="flex justify-between items-start">
-                <div>
+            <%= link_to food_plan_path(plan), class: "block border-b pb-4 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded p-2 transition duration-150" do %>
+              <div>
+                <div class="flex justify-between items-center">
                   <h3 class="font-medium"><%= plan.name %></h3>
-                  <p class="text-sm text-gray-600"><%= plan.start_date.strftime("%d/%m/%Y") %> - <%= plan.end_date.strftime("%d/%m/%Y") %></p>
+                  <span class="text-xs bg-green-100 text-green-800 py-1 px-2 rounded-full"><%= l plan.start_date, format: :short %></span>
                 </div>
-                <div class="flex space-x-2">
-                  <%= link_to "Ver", food_plan_path(plan), class: "text-sm text-blue-600 hover:text-blue-800" %>
-                  <%= link_to "PDF", download_pdf_food_plan_path(plan), class: "text-sm text-red-600 hover:text-red-800" %>
-                </div>
+                
+                <% if plan.anamnesis %>
+                  <p class="text-sm text-green-600 mt-1 truncate">
+                    <i class="fas fa-clipboard-list mr-1"></i>
+                    <%= plan.anamnesis.title %>
+                    <% if plan.anamnesis.client_name.present? %>
+                      <span class="text-blue-600 ml-1">
+                        <i class="fas fa-user mr-1"></i>
+                        <%= plan.anamnesis.client_name %>
+                      </span>
+                    <% end %>
+                  </p>
+                <% end %>
               </div>
-            </div>
+            <% end %>
           <% end %>
         </div>
       <% else %>
         <p class="text-gray-500 text-center py-4">Você ainda não tem planos alimentares.</p>
-        <%= link_to "Criar Plano Alimentar", new_anamnesis_path, class: "block text-center mt-2 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700" %>
+        <%= link_to new_anamnesis_path, class: "block text-center mt-2 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 flex items-center justify-center" do %>
+          <i class="fas fa-plus-circle mr-2"></i> Criar Plano Alimentar
+        <% end %>
       <% end %>
     </div>
     
+    <!-- Anamneses -->
     <div class="bg-white p-6 rounded-lg shadow">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold">Anamneses</h2>
-        <%= link_to "Nova Anamnese", new_anamnesis_path, class: "text-green-600 hover:text-green-800" %>
+        <h2 class="text-xl font-semibold"><i class="fas fa-clipboard-list text-green-600 mr-2"></i>Anamneses</h2>
+        <%= link_to new_anamnesis_path, class: "text-green-600 hover:text-green-800 flex items-center" do %>
+          <i class="fas fa-plus mr-1"></i> Nova Anamnese
+        <% end %>
       </div>
       
-      <% if @anamneses.any? %>
+      <% if @anamneses&.any? %>
         <div class="space-y-4">
           <% @anamneses.each do |anamnesis| %>
-            <div class="border-b pb-4 last:border-b-0 last:pb-0">
-              <div class="flex justify-between items-start">
-                <div>
-                  <h3 class="font-medium">Anamnese #<%= anamnesis.id %></h3>
-                  <p class="text-sm text-gray-600"><%= anamnesis.created_at.strftime("%d/%m/%Y") %></p>
+            <%= link_to anamnesis_path(anamnesis), class: "block border-b pb-4 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded p-2 transition duration-150" do %>
+              <div>
+                <div class="flex justify-between items-center">
+                  <h3 class="font-medium"><%= anamnesis.title %></h3>
+                  <span class="text-xs bg-blue-100 text-blue-800 py-1 px-2 rounded-full"><%= l anamnesis.created_at, format: :short %></span>
                 </div>
-                <div>
-                  <%= link_to "Ver", anamnesis_path(anamnesis), class: "text-sm text-blue-600 hover:text-blue-800" %>
-                </div>
+                
+                <% if anamnesis.client_name.present? %>
+                  <p class="text-sm text-blue-600 mt-1 truncate">
+                    <i class="fas fa-user mr-1"></i>
+                    <%= anamnesis.client_name %>
+                  </p>
+                <% end %>
               </div>
-            </div>
+            <% end %>
           <% end %>
         </div>
       <% else %>

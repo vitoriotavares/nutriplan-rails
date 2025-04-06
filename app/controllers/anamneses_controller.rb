@@ -66,6 +66,18 @@ class AnamnesesController < ApplicationController
   end
   
   def generate_plan
+    # Verificar se a anamnese tem as métricas necessárias
+    if !has_required_metrics?(@anamnesis)
+      redirect_to anamnesis_path(@anamnesis), alert: "Não é possível gerar um plano nutricional sem as métricas básicas. Por favor, complete os dados de saúde."
+      return
+    end
+    
+    # Verificar se o usuário pode criar um plano alimentar (limite do plano)
+    unless current_user.can_create_food_plan?
+      redirect_to anamnesis_path(@anamnesis), alert: "Você atingiu o limite de planos alimentares do seu plano atual."
+      return
+    end
+    
     # Usar o serviço de IA para gerar o plano nutricional
     generator = AiNutritionPlanGenerator.new(@anamnesis)
     @food_plan = generator.generate_plan
@@ -84,30 +96,38 @@ class AnamnesesController < ApplicationController
   end
   
   def anamnesis_params
+    # Parâmetros comuns para todas as etapas
+    common_params = [:title, :client_name]
+    
     # Permitir diferentes parâmetros dependendo da etapa atual
     case params[:step]
     when 'health_data'
       params.require(:anamnesis).permit(
+        *common_params,
         health_data: [:height, :weight, :date_of_birth, :gender, :blood_type, :allergies, :medical_conditions, :medications]
       )
     when 'dietary_preferences'
       params.require(:anamnesis).permit(
+        *common_params,
         dietary_preferences: [:favorite_foods, :disliked_foods, :meal_frequency, :diet_type]
       )
     when 'restrictions'
       params.require(:anamnesis).permit(
+        *common_params,
         restrictions: [:food_allergies, :intolerances, :medical_restrictions]
       )
     when 'lifestyle'
       params.require(:anamnesis).permit(
+        *common_params,
         lifestyle: [:activity_level, :exercise_frequency, :occupation, :stress_level, :sleep_hours]
       )
     when 'goals'
       params.require(:anamnesis).permit(
+        *common_params,
         goals: [:weight_goal, :health_objectives, :target_date, :specific_needs]
       )
     else
-      params.require(:anamnesis).permit
+      params.require(:anamnesis).permit(*common_params)
     end
   end
   
@@ -129,6 +149,17 @@ class AnamnesesController < ApplicationController
     
     previous_index = current_index - 1
     previous_index < 0 ? 'health_data' : steps[previous_index]
+  end
+  
+  def has_required_metrics?(anamnesis)
+    # Verificar se os dados básicos de saúde estão presentes
+    return false unless anamnesis.health_data.present?
+    
+    # Verificar métricas essenciais: altura, peso, data de nascimento e gênero
+    required_fields = ['height', 'weight', 'date_of_birth', 'gender']
+    required_fields.all? do |field|
+      anamnesis.health_data[field].present?
+    end
   end
   
   def require_login

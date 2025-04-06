@@ -4,7 +4,7 @@ class Meal < ApplicationRecord
   
   validates :name, :time, :objective, presence: true
   
-  enum meal_type: {
+  enum :meal_type, {
     breakfast: 0,
     morning_snack: 1,
     lunch: 2,

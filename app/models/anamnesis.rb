@@ -3,13 +3,25 @@ class Anamnesis < ApplicationRecord
   has_many :food_plans, dependent: :destroy
   
   # Definindo acessores para campos JSON
-  store_accessor :health_data, :height, :weight, :date_of_birth, :gender, :blood_type, :allergies
+  store_accessor :health_data, :height, :weight, :date_of_birth, :gender, :blood_type, :allergies, :medical_conditions, :medications
   store_accessor :dietary_preferences, :favorite_foods, :disliked_foods, :meal_frequency, :diet_type
   store_accessor :restrictions, :food_allergies, :intolerances, :medical_restrictions
   store_accessor :lifestyle, :activity_level, :exercise_frequency, :occupation, :stress_level, :sleep_hours
   store_accessor :goals, :weight_goal, :health_objectives, :target_date, :specific_needs
   
   validates :user_id, presence: true
+  validates :title, presence: true, length: { maximum: 100 }
+  
+  before_validation :set_default_title, if: -> { title.blank? }
+  
+  def set_default_title
+    self.title = "Anamnese #{created_at&.strftime('%d/%m/%Y') || Time.current.strftime('%d/%m/%Y')}"
+  end
+  
+  def client_full_name
+    return client_name if client_name.present?
+    user.profile&.name || user.email.split('@').first
+  end
   
   def bmi
     return nil unless health_data && health_data['height'].present? && health_data['weight'].present?

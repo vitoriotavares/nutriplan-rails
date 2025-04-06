@@ -13,6 +13,9 @@ class FoodItem < ApplicationRecord
   # Unidades comuns
   UNITS = %w[g ml colher_sopa colher_cha xicara unidade fatia]
   
+  # Serializar o campo substitutes como um array de hashes
+  serialize :substitutes, coder: JSON
+  
   def display_quantity
     "#{quantity} #{unit}"
   end
@@ -24,5 +27,46 @@ class FoodItem < ApplicationRecord
       carbs: carbs,
       fat: fat
     }
+  end
+  
+  # Adicionar um substituto ao item
+  def add_substitute(name, quantity, unit)
+    # Inicializar o array de substitutos se for nil
+    self.substitutes ||= []
+    
+    # Adicionar o novo substituto
+    substitute = {
+      name: name,
+      quantity: quantity,
+      unit: unit
+    }
+    
+    # Adicionar ao array e salvar
+    self.substitutes << substitute
+    
+    # Garantir que o salvamento ocorra
+    self.save!
+    
+    # Registrar no log para debug
+    Rails.logger.info("Substituto adicionado para #{self.name}: #{substitute.inspect}")
+    Rails.logger.info("Substitutos atuais: #{self.substitutes.inspect}")
+    
+    # Retornar o substituto adicionado
+    substitute
+  end
+  
+  # Verificar se o item tem substitutos
+  def has_substitutes?
+    # Garantir que substitutes não seja nil e tenha pelo menos um item
+    !substitutes.nil? && substitutes.is_a?(Array) && substitutes.any?
+  end
+  
+  # Formatar os substitutos para exibição
+  def substitutes_text
+    return nil unless has_substitutes?
+    
+    substitutes.map do |sub|
+      "#{sub[:name]} - #{sub[:quantity]} #{sub[:unit]}"
+    end.join(" ou ")
   end
 end

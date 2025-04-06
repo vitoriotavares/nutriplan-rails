@@ -1,8 +1,21 @@
 <div class="max-w-4xl mx-auto my-8 px-4">
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">Detalhes da Anamnese</h1>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800"><%= @anamnesis.title %></h1>
+      <% if @anamnesis.client_name.present? %>
+        <p class="text-md text-blue-600">
+          <i class="fas fa-user mr-1"></i>
+          Cliente: <%= @anamnesis.client_name %>
+        </p>
+      <% end %>
+    </div>
     <div class="flex space-x-2">
-      <%= link_to "Voltar", anamneses_path, class: "px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition" %>
+      <%= link_to edit_anamnesis_path(@anamnesis), class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center" do %>
+        <i class="fas fa-edit mr-2"></i> Editar
+      <% end %>
+      <%= link_to anamneses_path, class: "px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition flex items-center" do %>
+        <i class="fas fa-arrow-left mr-2"></i> Voltar
+      <% end %>
     </div>
   </div>
 
@@ -290,7 +303,7 @@
   </div>
 
   <!-- Botão para gerar plano -->
-  <div class="mt-6 bg-white rounded-lg shadow overflow-hidden">
+  <div class="mt-6 bg-green-50 rounded-lg shadow overflow-hidden border-2 border-green-200">
     <div class="p-6">
       <div class="flex flex-col items-center text-center">
         <h3 class="text-xl font-semibold mb-3 text-green-700">Plano Nutricional Personalizado</h3>
@@ -300,62 +313,87 @@
         </p>
         
         <% if @anamnesis.food_plans.exists? %>
-          <div class="mb-4">
+          <div class="mb-4 bg-white p-3 rounded-lg border border-green-200 w-full max-w-md">
             <p class="text-green-600 font-medium mb-2">Você já possui <%= @anamnesis.food_plans.count %> plano(s) nutricional(is) gerado(s) a partir desta anamnese.</p>
-            <%= link_to "Ver Meus Planos", food_plans_path, class: "text-blue-600 hover:text-blue-800 underline" %>
+            <%= link_to food_plans_path, class: "inline-flex items-center text-blue-600 hover:text-blue-800" do %>
+              <i class="fas fa-utensils mr-1"></i> Ver Meus Planos
+            <% end %>
           </div>
         <% end %>
         
+        <% 
+          has_metrics = @anamnesis.health_data.present? && 
+                        @anamnesis.health_data['height'].present? && 
+                        @anamnesis.health_data['weight'].present? && 
+                        @anamnesis.health_data['date_of_birth'].present? && 
+                        @anamnesis.health_data['gender'].present?
+        %>
+        
         <%= form_with url: generate_plan_anamnesis_path(@anamnesis), method: :post, data: { turbo: true }, class: "w-full flex justify-center" do |f| %>
-          <button type="submit" id="generate-plan-btn" class="group relative inline-flex items-center justify-center px-8 py-3 bg-green-600 text-white font-medium rounded-lg overflow-hidden hover:bg-green-700 transition-all duration-300 shadow-md">
-            <span class="relative z-10 flex items-center" id="btn-content">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              Gerar Novo Plano Nutricional
-            </span>
-            <span class="hidden relative z-10 flex items-center" id="btn-loading">
-              <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Gerando Plano...
-            </span>
-            <span class="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
-          </button>
+          <% if has_metrics %>
+            <button type="submit" id="generate-plan-btn" class="group relative inline-flex items-center justify-center px-8 py-4 bg-green-600 text-white text-lg font-medium rounded-lg overflow-hidden hover:bg-green-700 transition-all duration-300 shadow-md">
+              <span class="relative z-10 flex items-center" id="btn-content">
+                <i class="fas fa-utensils mr-2"></i>
+                Gerar Plano Alimentar Personalizado
+              </span>
+              <span class="hidden relative z-10 flex items-center" id="btn-loading">
+                <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Gerando Plano...
+              </span>
+              <span class="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+            </button>
+          <% else %>
+            <div class="text-center">
+              <button type="button" disabled class="inline-flex items-center justify-center px-8 py-4 bg-gray-400 text-white text-lg font-medium rounded-lg cursor-not-allowed opacity-75">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                Métricas Incompletas
+              </button>
+              <p class="text-amber-600 mt-3">
+                <i class="fas fa-info-circle mr-1"></i>
+                Para gerar um plano nutricional, complete os dados básicos de saúde (altura, peso, data de nascimento e gênero).
+              </p>
+              <%= link_to edit_anamnesis_path(@anamnesis, step: 'health_data'), class: "mt-2 inline-flex items-center text-blue-600 hover:text-blue-800" do %>
+                <i class="fas fa-edit mr-1"></i> Completar Dados de Saúde
+              <% end %>
+            </div>
+          <% end %>
         <% end %>
         
-        <p class="text-xs text-gray-500 mt-3">
-          Este processo utiliza inteligência artificial para analisar seus dados e criar um plano personalizado.
+        <p class="text-sm text-gray-600 mt-4 max-w-2xl">
+          <i class="fas fa-info-circle mr-1"></i>
+          Este processo utiliza inteligência artificial para analisar seus dados e criar um plano personalizado adaptado às suas necessidades específicas.
         </p>
-        
-        <script>
-          document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form[data-turbo="true"]');
-            const button = document.getElementById('generate-plan-btn');
-            const btnContent = document.getElementById('btn-content');
-            const btnLoading = document.getElementById('btn-loading');
-            
-            if (form) {
-              form.addEventListener('submit', function() {
-                // Desabilitar o botão
-                button.disabled = true;
-                button.classList.add('opacity-75', 'cursor-not-allowed');
-                
-                // Mostrar o indicador de carregamento
-                btnContent.classList.add('hidden');
-                btnLoading.classList.remove('hidden');
-                
-                // Adicionar mensagem de feedback
-                const feedbackMsg = document.createElement('p');
-                feedbackMsg.className = 'text-sm text-green-600 mt-3 animate-pulse';
-                feedbackMsg.textContent = 'Gerando plano nutricional personalizado. Este processo pode levar alguns segundos...';
-                form.parentNode.insertBefore(feedbackMsg, form.nextSibling);
-              });
-            }
-          });
-        </script>
       </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.querySelector('form[data-turbo="true"]');
+      const button = document.getElementById('generate-plan-btn');
+      const btnContent = document.getElementById('btn-content');
+      const btnLoading = document.getElementById('btn-loading');
+      
+      if (form) {
+        form.addEventListener('submit', function() {
+          // Desabilitar o botão
+          button.disabled = true;
+          button.classList.add('opacity-75', 'cursor-not-allowed');
+          
+          // Mostrar o indicador de carregamento
+          btnContent.classList.add('hidden');
+          btnLoading.classList.remove('hidden');
+          
+          // Adicionar mensagem de feedback
+          const feedbackMsg = document.createElement('p');
+          feedbackMsg.className = 'text-sm text-green-600 mt-3 animate-pulse';
+          feedbackMsg.textContent = 'Gerando plano nutricional personalizado. Este processo pode levar alguns segundos...';
+          form.parentNode.insertBefore(feedbackMsg, form.nextSibling);
+        });
+      }
+    });
+  </script>
 </div>

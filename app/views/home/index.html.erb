@@ -54,3 +54,140 @@
     </div>
   </div>
 </div>
+
+<div class="py-16 bg-gray-50">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center mb-6">Planos que se adaptam às suas necessidades</h2>
+    <p class="text-center text-gray-600 max-w-3xl mx-auto mb-12">Escolha o plano que melhor atende ao seu estilo de vida. Comece gratuitamente e atualize quando estiver pronto.</p>
+    
+    <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+      <% Plan.active.order(price: :asc).limit(2).each do |plan| %>
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden border <%= plan.price.zero? ? 'border-gray-200' : 'border-2 border-green-500' %> relative">
+          <% if !plan.price.zero? %>
+            <div class="absolute top-0 right-0 bg-green-500 text-white px-4 py-1 rounded-bl-lg font-medium">
+              Recomendado
+            </div>
+          <% end %>
+          
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-2 flex items-center">
+              <i class="<%= plan.price.zero? ? 'fas fa-seedling' : 'fas fa-crown' %> <%= plan.price.zero? ? 'text-green-500' : 'text-yellow-500' %> mr-2"></i>
+              <%= plan.name %>
+            </h3>
+            
+            <div class="mb-4">
+              <span class="text-2xl font-bold text-gray-900">
+                <%= plan.price.zero? ? 'Grátis' : number_to_currency(plan.price) %>
+              </span>
+              <% unless plan.price.zero? %>
+                <span class="text-gray-500">/mês</span>
+              <% end %>
+            </div>
+            
+            <ul class="space-y-2 mb-6">
+              <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                <span>
+                  <% if plan.food_plans_limit.zero? %>
+                    Planos alimentares ilimitados
+                  <% else %>
+                    <%= pluralize(plan.food_plans_limit, 'plano alimentar', 'planos alimentares') %> por mês
+                  <% end %>
+                </span>
+              </li>
+              
+              <li class="flex items-start">
+                <i class="fas <%= plan.full_recipe_access ? 'fa-check text-green-500' : 'fa-times text-gray-400' %> mt-1 mr-2"></i>
+                <span class="<%= plan.full_recipe_access ? 'text-gray-700' : 'text-gray-500' %>">
+                  <%= plan.full_recipe_access ? 'Acesso a todas as receitas' : 'Acesso a receitas básicas' %>
+                </span>
+              </li>
+              
+              <li class="flex items-start">
+                <i class="fas <%= plan.priority_support ? 'fa-check text-green-500' : 'fa-times text-gray-400' %> mt-1 mr-2"></i>
+                <span class="<%= plan.priority_support ? 'text-gray-700' : 'text-gray-500' %>">
+                  <%= plan.priority_support ? 'Suporte prioritário' : 'Suporte básico por email' %>
+                </span>
+              </li>
+            </ul>
+            
+            <%= link_to plans_path, class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white #{plan.price.zero? ? 'bg-gray-600 hover:bg-gray-700' : 'bg-green-600 hover:bg-green-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" do %>
+              <i class="fas fa-arrow-right mr-2"></i>
+              Saiba mais
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="text-center mt-8">
+      <%= link_to compare_plans_path, class: "inline-flex items-center text-green-600 hover:text-green-800" do %>
+        <span>Ver comparação detalhada</span>
+        <i class="fas fa-chevron-right ml-2 text-sm"></i>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="py-16 bg-white">
+  <div class="container mx-auto px-4">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-8">Perguntas Frequentes</h2>
+      
+      <div class="space-y-4">
+        <div class="border border-gray-200 rounded-md overflow-hidden">
+          <button class="w-full flex justify-between items-center px-4 py-3 bg-white text-left focus:outline-none" onclick="toggleFAQ(this)">
+            <span class="font-medium text-gray-700">O que é o NutriPlan?</span>
+            <i class="fas fa-chevron-down text-gray-500"></i>
+          </button>
+          <div class="hidden px-4 py-3 bg-gray-50">
+            <p class="text-gray-600">
+              O NutriPlan é uma plataforma que permite criar planos alimentares personalizados com base nas suas necessidades e objetivos. Utilizamos tecnologia avançada para gerar recomendações nutricionais adequadas ao seu perfil.
+            </p>
+          </div>
+        </div>
+        
+        <div class="border border-gray-200 rounded-md overflow-hidden">
+          <button class="w-full flex justify-between items-center px-4 py-3 bg-white text-left focus:outline-none" onclick="toggleFAQ(this)">
+            <span class="font-medium text-gray-700">Posso usar o NutriPlan gratuitamente?</span>
+            <i class="fas fa-chevron-down text-gray-500"></i>
+          </button>
+          <div class="hidden px-4 py-3 bg-gray-50">
+            <p class="text-gray-600">
+              Sim! Oferecemos um plano gratuito que permite criar um plano alimentar por mês. Para recursos adicionais, como mais planos mensais e acesso a todas as receitas, oferecemos um plano premium acessível.
+            </p>
+          </div>
+        </div>
+        
+        <div class="border border-gray-200 rounded-md overflow-hidden">
+          <button class="w-full flex justify-between items-center px-4 py-3 bg-white text-left focus:outline-none" onclick="toggleFAQ(this)">
+            <span class="font-medium text-gray-700">Como funciona a assinatura?</span>
+            <i class="fas fa-chevron-down text-gray-500"></i>
+          </button>
+          <div class="hidden px-4 py-3 bg-gray-50">
+            <p class="text-gray-600">
+              Nossa assinatura premium custa apenas R$19,90 por mês e pode ser cancelada a qualquer momento. Você terá acesso a todos os recursos premium enquanto sua assinatura estiver ativa.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleFAQ(button) {
+    const content = button.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    if (content.classList.contains('hidden')) {
+      content.classList.remove('hidden');
+      icon.classList.remove('fa-chevron-down');
+      icon.classList.add('fa-chevron-up');
+    } else {
+      content.classList.add('hidden');
+      icon.classList.remove('fa-chevron-up');
+      icon.classList.add('fa-chevron-down');
+    }
+  }
+</script>

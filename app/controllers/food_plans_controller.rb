@@ -1,6 +1,6 @@
 class FoodPlansController < ApplicationController
   before_action :require_login
-  before_action :set_food_plan, only: [:show, :edit, :update, :destroy, :generate_pdf]
+  before_action :set_food_plan, only: [:show, :edit, :update, :destroy, :generate_pdf, :print]
   
   def index
     @food_plans = current_user.food_plans
@@ -8,6 +8,11 @@ class FoodPlansController < ApplicationController
   
   def show
     @macros = @food_plan.anamnesis.calculate_macros(@food_plan.calories)
+  end
+  
+  def print
+    @macros = @food_plan.anamnesis.calculate_macros(@food_plan.calories)
+    render layout: false
   end
   
   def new
@@ -45,8 +50,30 @@ class FoodPlansController < ApplicationController
   end
   
   def generate_pdf
-    # Implementação futura para geração de PDF
-    redirect_to food_plan_path(@food_plan), notice: I18n.t('app.food_plans.pdf_generated')
+    @food_plan = FoodPlan.find(params[:id])
+    authorize @food_plan
+    
+    # Gerar o PDF usando Prawn
+    pdf = Prawn::Document.new(page_size: 'A4')
+    
+    # Adicionar a capa elegante
+    add_cover_page(pdf, @food_plan)
+    
+    # Adicionar informações do plano
+    add_plan_info(pdf, @food_plan)
+    
+    # Adicionar refeições
+    add_meals(pdf, @food_plan)
+    
+    # Salvar o PDF temporariamente
+    pdf_path = Rails.root.join('tmp', "plano_alimentar_#{@food_plan.id}.pdf")
+    pdf.render_file(pdf_path)
+    
+    # Enviar o arquivo para download
+    send_file pdf_path, 
+              filename: "plano_alimentar_#{@food_plan.user.name.parameterize}_#{Date.today.strftime('%d_%m_%Y')}.pdf", 
+              type: 'application/pdf', 
+              disposition: 'attachment'
   end
   
   private
@@ -119,6 +146,130 @@ class FoodPlansController < ApplicationController
       daily_amount: "2000",
       recommendation: "Beber 8 copos de água por dia, distribuídos ao longo do dia."
     )
+  end
+  
+  def add_cover_page(pdf, food_plan)
+    # Definir cores
+    primary_color = "8B2635"
+    secondary_color = "2C7D54"
+    
+    # Adicionar fundo decorativo
+    pdf.canvas do
+      # Borda superior
+      pdf.fill_color primary_color
+      pdf.fill_rectangle [0, pdf.bounds.height], pdf.bounds.width, 40
+      
+      # Borda inferior
+      pdf.fill_color secondary_color
+      pdf.fill_rectangle [0, 40], pdf.bounds.width, 40
+      
+      # Elementos decorativos
+      pdf.fill_color primary_color
+      pdf.fill_circle [50, pdf.bounds.height - 100], 30
+      pdf.fill_color secondary_color
+      pdf.fill_circle [pdf.bounds.width - 50, 100], 30
+    end
+    
+    # Adicionar logo (substitua pelo caminho real do seu logo)
+    # pdf.image "#{Rails.root}/app/assets/images/logo.png", at: [pdf.bounds.width/2 - 50, pdf.bounds.height - 100], width: 100
+    
+    # Título principal
+    pdf.move_down 150
+    pdf.font("Helvetica", style: :bold) do
+      pdf.text "NUTRIPLAN", align: :center, size: 40
+      pdf.move_down 20
+      pdf.text "PLANO ALIMENTAR", align: :center, size: 30
+    end
+    
+    # Informações do cliente
+    pdf.move_down 100
+    pdf.font("Helvetica") do
+      pdf.text "Cliente: #{food_plan.user.name}", align: :center, size: 18
+      pdf.move_down 10
+      pdf.text "Data: #{Date.today.strftime('%d/%m/%Y')}", align: :center, size: 14
+    end
+    
+    # Adicionar nova página para o conteúdo
+    pdf.start_new_page
+  end
+  
+  def add_plan_info(pdf, food_plan)
+    pdf.font("Helvetica", style: :bold) do
+      pdf.text "INFORMAÇÕES DO PLANO", size: 16
+    end
+    
+    pdf.move_down 10
+    
+    # Informações básicas
+    pdf.font("Helvetica") do
+      pdf.text "Cliente: #{food_plan.user.name}"
+      pdf.text "Idade: #{calculate_age(food_plan.anamnesis.birth_date)}"
+      pdf.text "Peso: #{food_plan.anamnesis.weight} kg"
+      pdf.text "Altura: #{food_plan.anamnesis.height} cm"
+      pdf.text "Objetivo: #{food_plan.anamnesis.objective}"
+      
+      if food_plan.anamnesis.dietary_restrictions.present?
+        pdf.move_down 5
+        pdf.text "Restrições alimentares: #{food_plan.anamnesis.dietary_restrictions.join(', ')}"
+      end
+      
+      if food_plan.anamnesis.dietary_preferences.present?
+        pdf.move_down 5
+        pdf.text "Preferências alimentares: #{food_plan.anamnesis.dietary_preferences.values.join(', ')}"
+      end
+    end
+    
+    pdf.move_down 20
+  end
+  
+  def add_meals(pdf, food_plan)
+    food_plan.meals.order(:time).each do |meal|
+      pdf.font("Helvetica", style: :bold) do
+        pdf.text meal.name, size: 14
+      end
+      
+      pdf.font("Helvetica", style: :italic) do
+        pdf.text "Horário: #{meal.time}", size: 10
+        pdf.text "Objetivo: #{meal.objective}", size: 10
+      end
+      
+      pdf.move_down 10
+      
+      # Adicionar itens alimentares
+      meal.food_items.each do |item|
+        pdf.font("Helvetica") do
+          pdf.text "• #{item.name} - #{item.quantity} #{item.unit}", size: 12
+          
+          # Adicionar substitutos se existirem
+          if item.has_substitutes?
+            pdf.indent(15) do
+              pdf.font("Helvetica", style: :italic) do
+                pdf.text "Opções de substituição:", size: 10
+                item.substitutes.each do |substitute|
+                  pdf.text "- #{substitute[:name]} - #{substitute[:quantity]} #{substitute[:unit]}", size: 10
+                end
+              end
+            end
+          end
+        end
+        
+        pdf.move_down 5
+      end
+      
+      pdf.move_down 15
+    end
+  end
+  
+  def calculate_age(birth_date)
+    return nil unless birth_date
+    
+    now = Date.today
+    age = now.year - birth_date.year
+    
+    # Ajustar se ainda não fez aniversário este ano
+    age -= 1 if now < birth_date + age.years
+    
+    age
   end
   
   def require_login
