@@ -58,9 +58,7 @@
     }
     </script>
     
-    <% if content_for?(:schema_org) %>
-      <%= yield :schema_org %>
-    <% end %>
+    <%= render_schema_org_data if defined?(render_schema_org_data) %>
   </head>
 
   <body class="bg-gray-50 min-h-screen flex flex-col">

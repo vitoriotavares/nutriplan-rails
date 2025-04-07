@@ -47,9 +47,8 @@ module SeoHelper
       '@type' => type
     }.merge(data)
     
-    content_for :schema_org do
-      content_tag :script, schema.to_json.html_safe, type: 'application/ld+json'
-    end
+    @schema_org_data ||= []
+    @schema_org_data << schema
   end
   
   # Gera markup Schema.org para breadcrumbs
@@ -72,8 +71,17 @@ module SeoHelper
       'itemListElement' => items
     }
     
-    content_for :schema_org do
+    @schema_org_data ||= []
+    @schema_org_data << schema
+  end
+  
+  # Renderiza todos os dados de Schema.org como scripts JSON-LD
+  # Este método deve ser chamado na view
+  def render_schema_org_data
+    return unless @schema_org_data.present?
+    
+    @schema_org_data.map do |schema|
       content_tag :script, schema.to_json.html_safe, type: 'application/ld+json'
-    end
+    end.join.html_safe
   end
 end
