@@ -1,0 +1,15 @@
+<%# app/views/food_plans/edit.turbo_stream.erb %>
+<%= turbo_stream.replace "food_plan_form" do %>
+  <%= render partial: "form", locals: { food_plan: @food_plan } %>
+<% end %>
+
+<%= turbo_stream.update "flash" do %>
+  <% if flash[:alert].present? %>
+    <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+      <div class="flex items-center">
+        <i class="fas fa-exclamation-circle mr-2"></i>
+        <p><%= flash[:alert] %></p>
+      </div>
+    </div>
+  <% end %>
+<% end %>

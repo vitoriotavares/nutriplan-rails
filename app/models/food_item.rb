@@ -16,6 +16,26 @@ class FoodItem < ApplicationRecord
   # Serializar o campo substitutes como um array de hashes
   serialize :substitutes, coder: JSON
   
+  # Método para processar os atributos dos substitutos
+  def substitutes_attributes=(attributes)
+    self.substitutes ||= []
+    
+    # Limpar substitutos existentes se estiver recebendo novos
+    self.substitutes = [] if attributes.present?
+    
+    # Processar cada substituto
+    attributes.each do |_key, substitute_params|
+      next if substitute_params.values.all?(&:blank?)
+      
+      # Adicionar o novo substituto
+      self.substitutes << {
+        name: substitute_params[:name],
+        quantity: substitute_params[:quantity],
+        unit: substitute_params[:unit]
+      }
+    end
+  end
+  
   def display_quantity
     "#{quantity} #{unit}"
   end
@@ -29,29 +49,16 @@ class FoodItem < ApplicationRecord
     }
   end
   
-  # Adicionar um substituto ao item
+  # Adicionar um substituto
   def add_substitute(name, quantity, unit)
-    # Inicializar o array de substitutos se for nil
-    self.substitutes ||= []
-    
-    # Adicionar o novo substituto
     substitute = {
       name: name,
       quantity: quantity,
       unit: unit
     }
     
-    # Adicionar ao array e salvar
+    self.substitutes ||= []
     self.substitutes << substitute
-    
-    # Garantir que o salvamento ocorra
-    self.save!
-    
-    # Registrar no log para debug
-    Rails.logger.info("Substituto adicionado para #{self.name}: #{substitute.inspect}")
-    Rails.logger.info("Substitutos atuais: #{self.substitutes.inspect}")
-    
-    # Retornar o substituto adicionado
     substitute
   end
   
@@ -66,7 +73,7 @@ class FoodItem < ApplicationRecord
     return nil unless has_substitutes?
     
     substitutes.map do |sub|
-      "#{sub[:name]} - #{sub[:quantity]} #{sub[:unit]}"
+      "#{sub["name"] || sub[:name]} - #{sub["quantity"] || sub[:quantity]} #{sub["unit"] || sub[:unit]}"
     end.join(" ou ")
   end
 end

@@ -56,10 +56,13 @@
               <%= link_to food_plan_path(food_plan), class: "px-3 py-1 bg-blue-100 text-blue-800 rounded text-sm flex items-center" do %>
                 <i class="fas fa-eye mr-1"></i> Ver Detalhes
               <% end %>
+              <%= link_to edit_food_plan_path(food_plan), class: "px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-sm flex items-center" do %>
+                <i class="fas fa-edit mr-1"></i> Editar
+              <% end %>
               <%= link_to generate_pdf_food_plan_path(food_plan), method: :post, class: "px-3 py-1 bg-green-100 text-green-800 rounded text-sm flex items-center" do %>
                 <i class="fas fa-file-pdf mr-1"></i> Gerar PDF
               <% end %>
-              <%= link_to print_food_plan_path(food_plan), target: "_blank", class: "px-3 py-1 bg-purple-100 text-purple-800 rounded text-sm flex items-center" do %>
+              <%= link_to print_food_plan_path(food_plan, format: 'pdf'), target: "_blank", class: "px-3 py-1 bg-purple-100 text-purple-800 rounded text-sm flex items-center" do %>
                 <i class="fas fa-print mr-1"></i> Imprimir
               <% end %>
             </div>

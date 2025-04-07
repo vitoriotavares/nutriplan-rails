@@ -587,7 +587,7 @@
         </div>
         
         <div class="cover-client">
-          <h3><%= @food_plan.anamnesis.user.profile&.name || 'Cliente' %></h3>
+          <h3><%= @food_plan.anamnesis.title || @food_plan.anamnesis.user.profile&.name || 'Cliente' %></h3>
           <p><%= l Date.today, format: :long %></p>
         </div>
       </div>

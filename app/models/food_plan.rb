@@ -5,6 +5,9 @@ class FoodPlan < ApplicationRecord
   has_many :meals, dependent: :destroy
   has_one :water_plan, dependent: :destroy
   
+  accepts_nested_attributes_for :meals, allow_destroy: true, reject_if: :all_blank
+  accepts_nested_attributes_for :water_plan, allow_destroy: true, reject_if: :all_blank
+  
   validates :name, presence: true
   validates :calories, numericality: { greater_than: 0 }, allow_nil: true
   validates :start_date, :end_date, presence: true

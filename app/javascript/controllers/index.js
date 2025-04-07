@@ -4,8 +4,17 @@
 
 import { application } from "./application"
 
+import DropdownController from "./dropdown_controller"
+application.register("dropdown", DropdownController)
+
+import FoodItemController from "./food_item_controller"
+application.register("food-item", FoodItemController)
+
+import FoodPlanFormController from "./food_plan_form_controller"
+application.register("food-plan-form", FoodPlanFormController)
+
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
 
-import DropdownController from "./dropdown_controller"
-application.register("dropdown", DropdownController)
+import NestedFormController from "./nested_form_controller"
+application.register("nested-form", NestedFormController)

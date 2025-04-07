@@ -1139,7 +1139,7 @@ class AiNutritionPlanGenerator
   
   def call_openai_api_for_substitutes(prompt)
     # Configuração da API OpenAI
-    client = OpenAI::Client.new(access_token: ENV['OPENAI_API_KEY'])
+    client = OpenAI::Client.new(access_token: Rails.application.credentials.dig(:openai_api_key))
     
     # Chamada à API
     response = client.chat(

@@ -2,6 +2,8 @@ class Meal < ApplicationRecord
   belongs_to :food_plan
   has_many :food_items, dependent: :destroy
   
+  accepts_nested_attributes_for :food_items, allow_destroy: true, reject_if: :all_blank
+  
   validates :name, :time, :objective, presence: true
   
   enum :meal_type, {

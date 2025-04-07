@@ -7,7 +7,9 @@
   },
   "dependencies": {
     "@hotwired/stimulus": "^3.2.2",
-    "@hotwired/turbo-rails": "^8.0.2"
+    "@hotwired/turbo-rails": "^8.0.2",
+    "@nathanvda/cocoon": "^1.2.14",
+    "jquery": "^3.7.1"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",

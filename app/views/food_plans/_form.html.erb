@@ -1,0 +1,91 @@
+<%# app/views/food_plans/_form.html.erb %>
+<%= form_with model: food_plan, data: { controller: "food-plan-form" } do |form| %>
+  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4 text-gray-800">Informações Básicas</h2>
+    
+    <% if food_plan.errors.any? %>
+      <div class="bg-red-50 text-red-700 p-4 rounded-md mb-4">
+        <h3 class="font-semibold mb-2">Foram encontrados <%= food_plan.errors.count %> erros:</h3>
+        <ul class="list-disc pl-5">
+          <% food_plan.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="col-span-2">
+        <%= form.label :name, "Nome do Plano", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.text_field :name, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+      </div>
+      
+      <div>
+        <%= form.label :start_date, "Data de Início", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.date_field :start_date, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+      </div>
+      
+      <div>
+        <%= form.label :end_date, "Data de Término", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.date_field :end_date, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+      </div>
+      
+      <div>
+        <%= form.label :calories, "Calorias Diárias", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.number_field :calories, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+      </div>
+      
+      <div>
+        <%= form.label :anamnesis_id, "Anamnese", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.collection_select :anamnesis_id, current_user.anamneses, :id, :title, 
+            { include_blank: "Selecione uma anamnese" }, 
+            { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500" } %>
+      </div>
+      
+      <div class="col-span-2">
+        <%= form.label :description, "Descrição e Observações", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.text_area :description, rows: 4, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-gray-800">Refeições</h2>
+      <button type="button" 
+              class="px-3 py-1 bg-primary-100 text-primary-700 rounded-md flex items-center text-sm"
+              data-action="click->food-plan-form#addMeal">
+        <i class="fas fa-plus mr-1"></i> Adicionar Refeição
+      </button>
+    </div>
+    
+    <div data-food-plan-form-target="meals">
+      <%= form.fields_for :meals do |meal_form| %>
+        <%= render "meal_fields", form: meal_form %>
+      <% end %>
+    </div>
+  </div>
+  
+  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4 text-gray-800">Plano de Hidratação</h2>
+    
+    <%= form.fields_for :water_plan do |water_plan_form| %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <%= water_plan_form.label :daily_amount, "Quantidade Diária (litros)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= water_plan_form.number_field :daily_amount, step: 0.1, min: 0, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+        </div>
+        
+        <div class="col-span-2">
+          <%= water_plan_form.label :recommendation, "Recomendações", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= water_plan_form.text_area :recommendation, rows: 3, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  
+  <div class="flex justify-end space-x-3">
+    <%= link_to "Cancelar", food_plan_path(food_plan), class: "px-6 py-3 bg-gray-100 text-gray-700 rounded-md" %>
+    <%= form.submit "Salvar Alterações", class: "px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition" %>
+  </div>
+<% end %>

@@ -8,12 +8,20 @@ primary_region = 'gig'
 console_command = '/rails/bin/rails console'
 
 [build]
+  [build.args]
+    BUNDLER_VERSION = "2.6.7"
+    NODE_VERSION = "18.15.0"
+    RUBY_VERSION = "3.2.2"
 
 [deploy]
   release_command = './bin/rails db:prepare'
 
 [env]
   PORT = '8080'
+  RAILS_ENV = "production"
+  RACK_ENV = "production"
+  RAILS_SERVE_STATIC_FILES = "true"
+  RAILS_LOG_TO_STDOUT = "true"
 
 [processes]
   app = './bin/rails server'

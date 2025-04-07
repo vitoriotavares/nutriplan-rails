@@ -1,0 +1,18 @@
+<%# app/views/food_plans/edit.html.erb %>
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6 flex items-center justify-between">
+    <h1 class="text-3xl font-bold text-primary-700">Editar Plano Alimentar</h1>
+    <div class="flex space-x-3">
+      <%= link_to food_plan_path(@food_plan), class: "px-4 py-2 bg-gray-100 text-gray-700 rounded-md flex items-center" do %>
+        <i class="fas fa-arrow-left mr-2"></i> Voltar
+      <% end %>
+      <%= link_to print_food_plan_path(@food_plan, format: 'pdf'), target: "_blank", class: "px-4 py-2 bg-purple-100 text-purple-800 rounded-md flex items-center" do %>
+        <i class="fas fa-print mr-2"></i> Visualizar PDF
+      <% end %>
+    </div>
+  </div>
+
+  <%= turbo_frame_tag "food_plan_form" do %>
+    <%= render partial: "form", locals: { food_plan: @food_plan } %>
+  <% end %>
+</div>

@@ -1,0 +1,26 @@
+<%# app/views/food_plans/update.turbo_stream.erb %>
+<%= turbo_stream.replace "food_plan_form" do %>
+  <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">
+    <div class="flex items-center">
+      <i class="fas fa-check-circle mr-2"></i>
+      <p><%= flash[:notice] %></p>
+    </div>
+  </div>
+  
+  <div class="flex justify-center mt-4">
+    <%= link_to food_plan_path(@food_plan), class: "px-6 py-3 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition flex items-center" do %>
+      <i class="fas fa-eye mr-2"></i> Ver Plano Alimentar
+    <% end %>
+  </div>
+<% end %>
+
+<%= turbo_stream.update "flash" do %>
+  <% if flash[:notice].present? %>
+    <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">
+      <div class="flex items-center">
+        <i class="fas fa-check-circle mr-2"></i>
+        <p><%= flash[:notice] %></p>
+      </div>
+    </div>
+  <% end %>
+<% end %>

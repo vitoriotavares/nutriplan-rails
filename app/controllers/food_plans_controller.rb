@@ -12,6 +12,13 @@ class FoodPlansController < ApplicationController
   
   def print
     @macros = @food_plan.anamnesis.calculate_macros(@food_plan.calories)
+
+    if params[:format] == 'pdf'
+      response.set_header 'Fly-Replay', 'app=nutriplan-pdf'
+      render 'nothing', status: 307, formats: [:html]
+      return
+    end
+
     render layout: false
   end
   
@@ -34,13 +41,18 @@ class FoodPlansController < ApplicationController
   end
   
   def edit
+    @food_plan.build_water_plan unless @food_plan.water_plan
   end
   
   def update
-    if @food_plan.update(food_plan_params)
-      redirect_to food_plan_path(@food_plan), notice: I18n.t('app.food_plans.updated')
-    else
-      render :edit, status: :unprocessable_entity
+    respond_to do |format|
+      if @food_plan.update(food_plan_params)
+        format.html { redirect_to food_plan_path(@food_plan), notice: I18n.t('app.food_plans.updated') }
+        format.turbo_stream { flash.now[:notice] = I18n.t('app.food_plans.updated') }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.turbo_stream { render :edit, status: :unprocessable_entity }
+      end
     end
   end
   
@@ -83,7 +95,14 @@ class FoodPlansController < ApplicationController
   end
   
   def food_plan_params
-    params.require(:food_plan).permit(:name, :description, :start_date, :end_date, :calories, :anamnesis_id)
+    params.require(:food_plan).permit(:name, :description, :start_date, :end_date, :calories, :anamnesis_id,
+      meals_attributes: [:id, :name, :time, :meal_type, :objective, :_destroy,
+        food_items_attributes: [:id, :name, :quantity, :unit, :_destroy,
+          substitutes: [:name, :quantity, :unit]
+        ]
+      ],
+      water_plan_attributes: [:id, :daily_amount, :recommendation]
+    )
   end
   
   # Método para gerar o plano nutricional usando o serviço de IA
