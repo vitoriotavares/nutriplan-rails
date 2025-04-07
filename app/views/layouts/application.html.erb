@@ -1,26 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
   <head>
+    <meta charset="UTF-8">
     <title><%= @title || "NutriPlan - Planos Alimentares Personalizados" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= @meta_description || 'NutriPlan - Crie planos alimentares personalizados com base em suas necessidades nutricionais. Acompanhamento profissional e receitas saudáveis.' %>">
+    <meta name="keywords" content="<%= @meta_keywords || 'plano alimentar, nutrição, dieta personalizada, saúde, emagrecimento, nutricionista online' %>">
+    <meta name="author" content="NutriPlan">
+    <meta name="robots" content="<%= @no_index ? 'noindex, nofollow' : 'index, follow' %>">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="<%= @canonical_url || request.original_url %>" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= request.original_url %>">
+    <meta property="og:title" content="<%= @og_title || @title || 'NutriPlan - Planos Alimentares Personalizados' %>">
+    <meta property="og:description" content="<%= @og_description || @meta_description || 'Crie planos alimentares personalizados com base em suas necessidades nutricionais.' %>">
+    <meta property="og:image" content="<%= @og_image || asset_url('logo.png') %>">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<%= request.original_url %>">
+    <meta name="twitter:title" content="<%= @twitter_title || @title || 'NutriPlan - Planos Alimentares Personalizados' %>">
+    <meta name="twitter:description" content="<%= @twitter_description || @meta_description || 'Crie planos alimentares personalizados com base em suas necessidades nutricionais.' %>">
+    <meta name="twitter:image" content="<%= @twitter_image || asset_url('logo.png') %>">
+    
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    
+    <!-- Schema.org markup for Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "NutriPlan",
+      "url": "<%= root_url %>",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "<%= root_url %>search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
+    <% if content_for?(:schema_org) %>
+      <%= yield :schema_org %>
+    <% end %>
   </head>
 
   <body class="bg-gray-50 min-h-screen flex flex-col">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:p-4 focus:bg-white focus:z-50">Pular para o conteúdo principal</a>
+    
     <header class="bg-white shadow-sm">
       <div class="container mx-auto px-4">
         <div class="flex justify-between items-center py-4">
-          <%= link_to root_path, class: "flex items-center" do %>
-            <%= image_tag "logo.png", alt: "NutriPlan Logo", class: "h-8 w-auto mr-2" %>
+          <%= link_to root_path, class: "flex items-center", aria: { label: "Página inicial NutriPlan" } do %>
+            <%= image_tag "logo.png", alt: "NutriPlan Logo", class: "h-8 w-auto mr-2", width: "32", height: "32" %>
             <span class="text-2xl font-bold text-green-600">NutriPlan</span>
           <% end %>
           
-          <nav class="flex items-center space-x-6">
+          <nav class="flex items-center space-x-6" aria-label="Navegação principal">
             <% if logged_in? %>
               <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
                 <%= link_to "Dashboard", dashboard_path, class: "text-gray-600 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium flex items-center" %>
@@ -29,29 +83,29 @@
                 <%= link_to "Planos e Preços", plans_path, class: "text-gray-600 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium flex items-center" %>
               </div>
               <div class="relative" data-controller="dropdown">
-                <button data-action="click->dropdown#toggle" class="flex items-center text-gray-600 hover:text-green-600 focus:outline-none">
-                  <i class="fas fa-user-circle mr-1"></i>
+                <button data-action="click->dropdown#toggle" class="flex items-center text-gray-600 hover:text-green-600 focus:outline-none" aria-expanded="false" aria-haspopup="true">
+                  <i class="fas fa-user-circle mr-1" aria-hidden="true"></i>
                   <span><%= current_user.profile&.name || "Usuário" %></span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                   </svg>
                 </button>
                 
-                <div data-dropdown-target="menu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden z-10">
-                  <%= link_to profile_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center" do %>
-                    <i class="fas fa-id-card mr-2"></i> Meu Perfil
+                <div data-dropdown-target="menu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden z-10" role="menu" aria-orientation="vertical">
+                  <%= link_to profile_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center", role: "menuitem" do %>
+                    <i class="fas fa-id-card mr-2" aria-hidden="true"></i> Meu Perfil
                   <% end %>
-                  <%= button_to logout_path, method: :delete, class: "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center" do %>
-                    <i class="fas fa-sign-out-alt mr-2"></i> Sair
+                  <%= button_to logout_path, method: :delete, class: "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center", role: "menuitem" do %>
+                    <i class="fas fa-sign-out-alt mr-2" aria-hidden="true"></i> Sair
                   <% end %>
                 </div>
               </div>
             <% else %>
               <%= link_to login_path, class: "text-gray-600 hover:text-green-600 flex items-center" do %>
-                <i class="fas fa-sign-in-alt mr-1"></i> Entrar
+                <i class="fas fa-sign-in-alt mr-1" aria-hidden="true"></i> Entrar
               <% end %>
               <%= link_to signup_path, class: "bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md flex items-center" do %>
-                <i class="fas fa-user-plus mr-1"></i> Criar Conta
+                <i class="fas fa-user-plus mr-1" aria-hidden="true"></i> Criar Conta
               <% end %>
             <% end %>
           </nav>
@@ -60,18 +114,18 @@
     </header>
     
     <% if flash[:notice] %>
-      <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-4">
+      <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
         <%= flash[:notice] %>
       </div>
     <% end %>
     
     <% if flash[:alert] %>
-      <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+      <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
         <%= flash[:alert] %>
       </div>
     <% end %>
     
-    <main class="flex-grow">
+    <main id="main-content" class="flex-grow">
       <%= yield %>
     </main>
     
@@ -81,13 +135,13 @@
           <p class="text-gray-600">&copy; <%= Time.current.year %> NutriPlan - Todos os direitos reservados.</p>
           <div class="mt-4 md:mt-0">
             <%= link_to terms_path, class: "text-gray-600 hover:text-green-600 mx-2 flex items-center inline-flex" do %>
-              <i class="fas fa-file-contract mr-1"></i> Termos de Uso
+              <i class="fas fa-file-contract mr-1" aria-hidden="true"></i> Termos de Uso
             <% end %>
             <%= link_to privacy_path, class: "text-gray-600 hover:text-green-600 mx-2 flex items-center inline-flex" do %>
-              <i class="fas fa-shield-alt mr-1"></i> Privacidade
+              <i class="fas fa-shield-alt mr-1" aria-hidden="true"></i> Privacidade
             <% end %>
             <%= link_to contact_path, class: "text-gray-600 hover:text-green-600 mx-2 flex items-center inline-flex" do %>
-              <i class="fas fa-envelope mr-1"></i> Contato
+              <i class="fas fa-envelope mr-1" aria-hidden="true"></i> Contato
             <% end %>
           </div>
         </div>

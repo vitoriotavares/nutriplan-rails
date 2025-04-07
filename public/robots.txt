@@ -1,1 +1,37 @@
 # See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+
+# Permitir acesso a todos os crawlers
+User-agent: *
+Allow: /
+
+# Áreas restritas que não devem ser indexadas
+Disallow: /admin/
+Disallow: /users/sign_in
+Disallow: /users/sign_up
+Disallow: /users/password
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /api/
+Disallow: /*/edit
+Disallow: /*/new
+Disallow: /search?*
+
+# Permitir acesso ao Googlebot com algumas restrições específicas
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /users/sign_in
+
+# Permitir acesso ao Bingbot
+User-agent: Bingbot
+Allow: /
+
+# Bloquear bots agressivos ou desnecessários
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+# Sitemap
+Sitemap: https://nutriplanbrasil.com.br/sitemap.xml

@@ -21,6 +21,19 @@ Rails.application.configure do
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"
 
+  # Permitir hosts do Fly.io e domínio personalizado
+  config.hosts << "nutriplanbrasil.com.br"
+  config.hosts << "www.nutriplanbrasil.com.br"
+  config.hosts << "nutriplan-rails.fly.dev"
+  config.hosts << /.*\.fly\.dev/
+  config.hosts << /[a-z0-9-]+\.app\.internal/
+  config.hosts << /^(.*\.)?fly\.io$/
+  config.hosts << /^172\.19\.\d+\.\d+$/
+  config.hosts << /^172\.19\.\d+\.\d+\:\d+$/
+
+  # Desativar verificação de host para o health check
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
@@ -31,7 +44,7 @@ Rails.application.configure do
   config.force_ssl = true
 
   # Skip http-to-https redirect for the default health check endpoint.
-  # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+  config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]
@@ -58,7 +71,7 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  config.action_mailer.default_url_options = { host: "nutriplanbrasil.com.br", protocol: "https" }
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {

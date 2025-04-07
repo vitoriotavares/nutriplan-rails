@@ -346,6 +346,7 @@ GEM
       ffi (~> 1.12)
       logger
     rubyzip (2.4.1)
+    secure_headers (7.1.0)
     securerandom (0.4.1)
     selenium-webdriver (4.31.0)
       base64 (~> 0.2)
@@ -353,6 +354,8 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
+    sitemap_generator (6.3.0)
+      builder (~> 3.0)
     solid_cable (3.0.7)
       actioncable (>= 7.2)
       activejob (>= 7.2)
@@ -449,7 +452,9 @@ DEPENDENCIES
   rails (~> 8.0.2)
   rubocop-rails-omakase
   ruby-openai (~> 6.3)
+  secure_headers
   selenium-webdriver
+  sitemap_generator
   solid_cable
   solid_cache
   solid_queue
