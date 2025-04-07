@@ -8,7 +8,7 @@ class HomeController < ApplicationController
       title: "NutriPlan - Planos Alimentares Personalizados",
       description: "Crie planos alimentares personalizados com base em suas necessidades nutricionais. Acompanhamento profissional e receitas saudáveis.",
       keywords: "plano alimentar, nutrição, dieta personalizada, saúde, emagrecimento, nutricionista online",
-      image: asset_url("home-banner.jpg"),
+      image: "/assets/home-banner.jpg",
       og: {
         title: "NutriPlan - Transforme sua alimentação",
         description: "Planos alimentares personalizados para atingir seus objetivos de saúde e bem-estar."
@@ -34,7 +34,7 @@ class HomeController < ApplicationController
         "name": "NutriPlan",
         "logo": {
           "@type": "ImageObject",
-          "url": asset_url("logo.png")
+          "url": "#{root_url}assets/logo.png"
         }
       }
     })
