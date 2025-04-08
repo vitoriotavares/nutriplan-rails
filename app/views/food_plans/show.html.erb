@@ -22,8 +22,8 @@
       <%= link_to edit_food_plan_path(@food_plan), class: "px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition flex items-center" do %>
         <i class="fas fa-edit mr-2"></i> Editar
       <% end %>
-      <%= link_to print_food_plan_path(@food_plan, format: 'pdf'), class: "px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition flex items-center", target: "_blank" do %>
-        <i class="fas fa-print mr-2"></i> Imprimir
+      <%= link_to generate_pdf_food_plan_path(@food_plan), class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center" do %>
+        <i class="fas fa-file-pdf mr-2"></i> Relatório PDF
       <% end %>
     </div>
   </div>

@@ -23,8 +23,7 @@ Rails.application.routes.draw do
   
   resources :food_plans do
     member do
-      post :generate_pdf
-      get :print
+      get :generate_pdf
     end
     resources :meals, shallow: true do
       resources :food_items, shallow: true
