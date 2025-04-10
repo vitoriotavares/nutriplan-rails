@@ -40,7 +40,7 @@ class FoodPlanPdfGenerator
       page_size: "A4",
       margin: [30, 30, 30, 30],
       info: {
-        Title: "Plano Alimentar - #{@profile&.name || 'Cliente'}",
+        Title: "Plano Alimentar - #{@anamnesis&.client_name || @user&.name || 'Cliente'}",
         Author: "NutriPlan",
         Creator: "NutriPlan",
         Producer: "Prawn",
@@ -64,22 +64,12 @@ class FoodPlanPdfGenerator
     pdf.default_leading 5
     
     begin
-      # Gerar capa
+      # Gerar conteúdo do PDF
       generate_cover_page(pdf)
-      
-      # Gerar avaliação técnica
       generate_technical_assessment(pdf)
-      
-      # Gerar plano alimentar
       generate_meal_plan(pdf)
-      
-      # Gerar plano de hidratação
       generate_water_plan(pdf) if @food_plan.water_plan.present?
-      
-      # Gerar observações e recomendações
       generate_observations(pdf) if @food_plan.description.present?
-      
-      # Gerar rodapé e avisos legais
       generate_footer(pdf)
     rescue => e
       # Registrar o erro
@@ -102,74 +92,80 @@ class FoodPlanPdfGenerator
       end
     end
     
+    Rails.logger.info("Total de páginas: #{pdf.page_count}")
+    
+    # Adicionar rodapé em todas as páginas, exceto a primeira
+    add_page_footer_with_qrcode_and_numbering(pdf, "https://nutriplanbrasil.com.br")
+    
     pdf
   end
 
   private
 
   def generate_cover_page(pdf)
-    # Configuração da página de capa
+    # Configuração da página de capa com fundo branco
     pdf.canvas do
-      # Fundo da capa
-      pdf.fill_color @light_bg
+      pdf.fill_color "FFFFFF"
       pdf.fill_rectangle [0, pdf.bounds.height], pdf.bounds.width, pdf.bounds.height
     end
     
     # Conteúdo centralizado
-    content_height = 500 # Altura estimada do conteúdo
-    start_y = pdf.bounds.height - ((pdf.bounds.height - content_height) / 2)
+    content_height = 900 # Altura estimada do conteúdo
+    start_y = 600
     
     # Logo e título
     pdf.bounding_box([0, start_y], width: pdf.bounds.width, height: content_height) do
-      # Logo
-      pdf.fill_color @primary_color
-      pdf.font(@header_font, style: :bold, size: 32) do
-        pdf.text_box "Nutri", at: [0, pdf.bounds.height], width: pdf.bounds.width, align: :center
-      end
-      
-      pdf.fill_color @accent_color
-      pdf.font(@header_font, style: :bold, size: 32) do
-        pdf.text_box "Plan", at: [0, pdf.bounds.height - 32], width: pdf.bounds.width, align: :center
-      end
-      
-      pdf.move_down 100
-      
-      # Título do documento
-      pdf.fill_color @title_color
-      pdf.font(@header_font, style: :normal, size: 36) do
-        pdf.text "PLANO ALIMENTAR", align: :center
-      end
-      
-      pdf.move_down 20
-      
-      pdf.fill_color @title_color
-      pdf.font(@header_font, style: :normal, size: 28) do
-        pdf.text "PERSONALIZADO", align: :center, letter_spacing: 2
+      # Logo NutriPlan
+      pdf.move_down 50
+      pdf.font(@header_font, style: :bold, size: 26) do
+        pdf.formatted_text_box [
+          { text: "Nutri", color: @primary_color },
+          { text: "Plan", color: @accent_color }
+        ], at: [0, pdf.cursor], width: pdf.bounds.width, align: :center
       end
       
       pdf.move_down 80
       
-      # Nome do cliente
-      pdf.fill_color @primary_color
-      pdf.font(@header_font, style: :bold, size: 28) do
-        pdf.text @profile&.name || "Cliente", align: :center
+      # Título do documento
+      pdf.fill_color @title_color
+      pdf.font(@header_font, style: :normal, size: 26) do
+        pdf.text "PLANO ALIMENTAR PERSONALIZADO", align: :center, character_spacing: 1
       end
       
-      pdf.move_down 15
+      pdf.move_down 40
+      
+      # Nome do cliente
+      pdf.fill_color @primary_color
+      pdf.font(@header_font, style: :normal, size: 24) do
+        pdf.text @anamnesis.client_name || @profile&.name || "Cliente", align: :center
+      end
       
       # Data
       pdf.fill_color @light_text
-      pdf.font(@body_font, size: 18) do
-        pdf.text I18n.l(Date.today, format: :long), align: :center
+      pdf.font(@body_font, size: 14) do
+        pdf.text "Iniciado em: #{I18n.l(Date.today, format: :long)}", align: :center
       end
-      
-      # Rodapé da capa
+    end
+    
+    # Rodapé da capa - Ajustado para ficar mais próximo da base da página
+    pdf.bounding_box([0, 30.mm], width: pdf.bounds.width, height: 40.mm) do
       pdf.fill_color @light_text
-      pdf.font(@body_font, size: 12) do
-        pdf.text_box "© #{Date.today.year} NutriPlan - Todos os direitos reservados", 
-                    at: [0, 40], 
-                    width: pdf.bounds.width, 
-                    align: :center
+      pdf.font(@body_font, size: 11) do
+        # Linha separadora mais sutil
+        pdf.stroke_color @border_color
+        pdf.line_width = 0.25
+        pdf.stroke_horizontal_line 50, pdf.bounds.width - 50, at: pdf.cursor
+        
+        pdf.move_down 15
+        
+        # Texto do rodapé
+        pdf.text "Este plano alimentar foi desenvolvido exclusivamente para #{@anamnesis.client_name || @profile&.name || 'Cliente'} baseado em suas\nnecessidades nutricionais, preferências alimentares e objetivos específicos.", 
+                 align: :center,
+                 leading: 5
+        
+        pdf.move_down 8
+        pdf.text "© #{Date.today.year} NutriPlan - Todos os direitos reservados", 
+                 align: :center
       end
     end
     
@@ -641,7 +637,7 @@ class FoodPlanPdfGenerator
     end
     
     # Adicionar rodapé com QR code e numeração
-    add_page_footer_with_qrcode_and_numbering(pdf, "https://nutriplanbrasil.com.br")
+    #add_page_footer_with_qrcode_and_numbering(pdf, "https://nutriplanbrasil.com.br")
     
     # Iniciar nova página para o plano de hidratação
     pdf.start_new_page
@@ -764,7 +760,7 @@ class FoodPlanPdfGenerator
     end
     
     # Adicionar rodapé com QR code e numeração
-    add_page_footer_with_qrcode_and_numbering(pdf, "https://nutriplanbrasil.com.br")
+    #add_page_footer_with_qrcode_and_numbering(pdf, "https://nutriplanbrasil.com.br")
     
     # Iniciar nova página para as observações
     pdf.start_new_page
@@ -831,7 +827,7 @@ class FoodPlanPdfGenerator
     end
     
     # Adicionar rodapé com QR code e numeração
-    add_page_footer_with_qrcode_and_numbering(pdf, "https://nutriplanbrasil.com.br")
+    #add_page_footer_with_qrcode_and_numbering(pdf, "https://nutriplanbrasil.com.br")
   end
 
   def generate_footer(pdf)
@@ -908,46 +904,43 @@ class FoodPlanPdfGenerator
     end
     
     # Adicionar rodapé com QR code e numeração
-    add_page_footer_with_qrcode_and_numbering(pdf, "https://nutriplanbrasil.com.br")
+    # add_page_footer_with_qrcode_and_numbering(pdf, "https://nutriplanbrasil.com.br")
   end
   
   # Adiciona um rodapé com QR code e numeração de página em cada página
   def add_page_footer_with_qrcode_and_numbering(pdf, url)
-    # Gerar o QR code
-    qrcode = generate_qrcode(url)
-    
-    # Adicionar o QR code como um callback de rodapé
-    pdf.repeat(:all) do
+    # Configurar o rodapé para aparecer em todas as páginas, exceto a primeira
+    pdf.repeat(:all, dynamic: true) do
+      next if pdf.page_number == 1
+      
       # Salvar o estado atual
       pdf.save_graphics_state
       
-      # Adicionar um retângulo branco como fundo para o QR code com borda preta
-      pdf.fill_color "ffffff"
-      pdf.fill_rectangle [pdf.bounds.left, pdf.bounds.bottom + 25], 26, 26
-      pdf.stroke_color "000000"
-      pdf.line_width = 1
-      pdf.stroke_rectangle [pdf.bounds.left, pdf.bounds.bottom + 25], 26, 26
+      # Calcular posição do rodapé (20mm da base da página)
+      footer_y = 10.mm
       
-      # Posicionar no rodapé - mais próximo da borda inferior
-      pdf.bounding_box([pdf.bounds.left, pdf.bounds.bottom + 20], width: pdf.bounds.width, height: 20) do
-        # Adicionar o QR code à esquerda
-        pdf.image StringIO.new(qrcode), at: [3, 23], width: 20, height: 20
+      # Adicionar linha separadora acima do rodapé
+      pdf.stroke_color @border_color
+      pdf.line_width = 0.5
+      pdf.stroke_horizontal_line 0, pdf.bounds.width, at: footer_y + 10.mm
+      
+      # Adicionar informações do rodapé
+      pdf.font(@body_font, size: 8) do
+        pdf.fill_color @light_text
         
-        # Adicionar o texto do URL ao lado do QR code
-        pdf.font(@body_font, size: 8, style: :bold) do
-          pdf.fill_color "000000"  # Preto puro para o texto
-          pdf.text_box url, at: [30, 12], width: 150, height: 10
-        end
+        # Nome do paciente à esquerda
+        patient_name = @profile&.name || "Cliente"
+        pdf.text_box "Plano Alimentar Personalizado - #{patient_name}", 
+                    at: [0, footer_y + 5.mm], 
+                    width: pdf.bounds.width - 60, # Reduzir largura para evitar sobreposição
+                    height: 10
         
-        # Adicionar o número da página à direita
-        pdf.font(@body_font, size: 8) do
-          pdf.fill_color "000000"  # Preto puro para o texto
-          pdf.text_box "NutriPlan - Página #{pdf.page_number} de #{pdf.page_count}", 
-                      at: [pdf.bounds.width - 150, 12], 
-                      width: 150, 
-                      height: 10, 
-                      align: :right
-        end
+        # Número da página à direita
+        pdf.text_box "Página #{pdf.page_number} de #{pdf.page_count}", 
+                    at: [pdf.bounds.width - 80, footer_y + 5.mm], 
+                    width: 80,
+                    height: 10,
+                    align: :right
       end
       
       # Restaurar o estado
@@ -983,7 +976,7 @@ class FoodPlanPdfGenerator
     else
       # Título da seção
       pdf.fill_color @primary_color
-      pdf.font(@header_font, style: :bold, size: 20) do
+      pdf.font(@header_font, style: :bold, size: 16) do
         pdf.text title
       end
       
@@ -992,7 +985,7 @@ class FoodPlanPdfGenerator
       pdf.line_width = 2
       pdf.stroke_horizontal_line 0, pdf.bounds.width, at: pdf.cursor - 8
       
-      pdf.move_down 15
+      pdf.move_down 10
     end
   end
   

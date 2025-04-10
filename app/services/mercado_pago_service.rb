@@ -49,8 +49,8 @@ class MercadoPagoService
         email: user.email,
         name: user.profile&.name || user.email,
         identification: {
-          type: "CPF",
-          number: user.profile&.document
+          type: "user_identification",
+          number: user.id.to_s
         }
       },
       back_urls: {
