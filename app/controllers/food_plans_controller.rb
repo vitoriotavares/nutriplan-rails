@@ -1,6 +1,6 @@
 class FoodPlansController < ApplicationController
   before_action :require_login
-  before_action :set_food_plan, only: [:show, :edit, :update, :destroy, :generate_pdf, :print]
+  before_action :set_food_plan, only: [:show, :edit, :update, :destroy, :generate_pdf]
   
   def index
     @food_plans = current_user.food_plans
@@ -8,18 +8,6 @@ class FoodPlansController < ApplicationController
   
   def show
     @macros = @food_plan.anamnesis.calculate_macros(@food_plan.calories)
-  end
-  
-  def print
-    @macros = @food_plan.anamnesis.calculate_macros(@food_plan.calories)
-
-    if params[:format] == 'pdf'
-      response.set_header 'Fly-Replay', 'app=nutriplan-pdf'
-      render 'nothing', status: 307, formats: [:html]
-      return
-    end
-
-    render layout: false
   end
   
   def new
@@ -62,28 +50,13 @@ class FoodPlansController < ApplicationController
   end
   
   def generate_pdf
-    @food_plan = FoodPlan.find(params[:id])
-    authorize @food_plan
-    
-    # Gerar o PDF usando Prawn
-    pdf = Prawn::Document.new(page_size: 'A4')
-    
-    # Adicionar a capa elegante
-    add_cover_page(pdf, @food_plan)
-    
-    # Adicionar informações do plano
-    add_plan_info(pdf, @food_plan)
-    
-    # Adicionar refeições
-    add_meals(pdf, @food_plan)
-    
-    # Salvar o PDF temporariamente
-    pdf_path = Rails.root.join('tmp', "plano_alimentar_#{@food_plan.id}.pdf")
-    pdf.render_file(pdf_path)
+    # Gerar o PDF usando o novo serviço
+    pdf_generator = FoodPlanPdfGenerator.new(@food_plan)
+    pdf = pdf_generator.generate
     
     # Enviar o arquivo para download
-    send_file pdf_path, 
-              filename: "plano_alimentar_#{@food_plan.user.name.parameterize}_#{Date.today.strftime('%d_%m_%Y')}.pdf", 
+    send_data pdf.render, 
+              filename: "plano_alimentar_#{@food_plan.anamnesis.user.profile&.name.to_s.parameterize || 'cliente'}_#{Date.today.strftime('%d_%m_%Y')}.pdf", 
               type: 'application/pdf', 
               disposition: 'attachment'
   end

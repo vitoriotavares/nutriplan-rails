@@ -1,11 +1,31 @@
 class MercadoPagoService
-  def initialize
-    @sdk = Mercadopago::SDK.new(Rails.application.credentials.dig(:mercado_pago, :access_token))
+  def initialize(test_mode: nil)
+    # Se test_mode for especificado, usa esse valor
+    # Caso contrário, usa a configuração global
+    @test_mode = test_mode.nil? ? MercadoPago.configuration.test_mode : test_mode
+    @sdk = Mercadopago::SDK.new(access_token)
+  end
+  
+  # Alterna entre modo de teste e produção
+  def toggle_test_mode(enabled)
+    @test_mode = enabled
+    @sdk = Mercadopago::SDK.new(access_token)
+  end
+  
+  # Retorna o token de acesso apropriado com base no modo atual
+  def access_token
+    @test_mode ? MercadoPago.test_access_token : MercadoPago.production_access_token
+  end
+  
+  # Retorna a chave pública apropriada com base no modo atual
+  def public_key
+    @test_mode ? MercadoPago.test_public_key : MercadoPago.production_public_key
   end
   
   # Cria uma preferência de pagamento para assinatura
   def create_payment_preference(user:, plan:, subscription:)
     Rails.logger.info("Iniciando criação de preferência de pagamento para usuário #{user.id}, plano #{plan.id}")
+    Rails.logger.info("Modo de teste: #{@test_mode ? 'ATIVADO' : 'DESATIVADO'}")
     
     # Garantir que a assinatura tenha um ID antes de criar a preferência
     # Se a assinatura ainda não foi salva, salvamos temporariamente
@@ -29,8 +49,8 @@ class MercadoPagoService
         email: user.email,
         name: user.profile&.name || user.email,
         identification: {
-          type: "CPF",
-          number: user.profile&.document
+          type: "user_identification",
+          number: user.id.to_s
         }
       },
       back_urls: {

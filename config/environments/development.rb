@@ -41,7 +41,7 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
 
   # Allow requests from ngrok
-  config.hosts << "98d5-2804-1a04-8049-6a00-80b8-95dc-8e52-8c95.ngrok-free.app"
+  config.hosts << "1e1f-2804-1a04-8049-6a00-b14c-f710-400d-a34f.ngrok-free.app"
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log

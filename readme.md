@@ -50,11 +50,17 @@ O sistema tem como objetivo criar planos alimentares personalizados baseados nas
 - RF17: Visualização do plano na plataforma
 - RF18: Exportação do plano em diferentes formatos (PDF, imprimir)
 
-### 3.5 Funcionalidades Adicionais
-- RF19: Lista de compras baseada no plano alimentar
-- RF20: Receitas detalhadas com instruções de preparo
-- RF21: Dicas de adaptação do plano para situações específicas
-- RF22: Possibilidade de solicitação de ajustes no plano
+### 3.5 Pagamentos e Assinaturas
+- RF19: Integração com Mercado Pago para processamento de pagamentos
+- RF20: Sistema de assinaturas para acesso contínuo à plataforma
+- RF21: Opção de compra de créditos avulsos para geração de planos individuais
+- RF22: Histórico de transações e faturas para o usuário
+
+### 3.6 Funcionalidades Adicionais
+- RF23: Lista de compras baseada no plano alimentar
+- RF24: Receitas detalhadas com instruções de preparo
+- RF25: Dicas de adaptação do plano para situações específicas
+- RF26: Possibilidade de solicitação de ajustes no plano
 
 ## 4. Requisitos Não Funcionais
 
@@ -94,6 +100,8 @@ class User < ApplicationRecord
   has_one :profile, dependent: :destroy
   has_many :anamneses, dependent: :destroy
   has_many :food_plans, dependent: :destroy
+  has_many :subscriptions, dependent: :destroy
+  has_many :payments, dependent: :destroy
   
   validates :email, presence: true, uniqueness: true
   validates :name, presence: true
@@ -187,6 +195,37 @@ class GroceryList < ApplicationRecord
 end
 ```
 
+#### Subscription
+```ruby
+# app/models/subscription.rb
+class Subscription < ApplicationRecord
+  belongs_to :user
+  
+  validates :plan_type, :status, :start_date, presence: true
+  enum plan_type: [:monthly, :quarterly, :annual]
+  enum status: [:active, :canceled, :expired]
+  
+  # Mercado Pago subscription reference
+  validates :mp_subscription_id, presence: true, uniqueness: true
+end
+```
+
+#### Payment
+```ruby
+# app/models/payment.rb
+class Payment < ApplicationRecord
+  belongs_to :user
+  belongs_to :subscription, optional: true
+  
+  validates :amount, :status, :payment_type, presence: true
+  enum payment_type: [:subscription, :credit_purchase]
+  enum status: [:pending, :approved, :rejected, :refunded]
+  
+  # Mercado Pago payment reference
+  validates :mp_payment_id, presence: true, uniqueness: true
+end
+```
+
 #### Recipe
 ```ruby
 # app/models/recipe.rb
@@ -229,6 +268,14 @@ Rails.application.routes.draw do
     resource :water_plan
     resource :grocery_list
   end
+  
+  # Pagamentos e assinaturas
+  resources :subscriptions
+  resources :payments, only: [:index, :show]
+  resources :credits, only: [:index, :create]
+  
+  # Webhooks para Mercado Pago
+  post 'webhooks/mercado_pago', to: 'webhooks#mercado_pago'
   
   resources :recipes
   
@@ -778,6 +825,9 @@ app/
 ├── controllers/
 │   ├── anamneses_controller.rb
 │   ├── food_plans_controller.rb
+│   ├── subscriptions_controller.rb
+│   ├── payments_controller.rb
+│   ├── webhooks_controller.rb
 │   └── ...
 ├── javascript/
 │   ├── controllers/
@@ -802,23 +852,135 @@ app/
     └── ...
 ```
 
-### 9.2 Implementação de Turbo Frames para a Navegação de Etapas
+### 9.2 Integração com Mercado Pago
 
-```erb
-<!-- app/views/anamneses/step1.html.erb -->
-<%= turbo_frame_tag "anamnesis_form" do %>
-  <%= render SteppedFormComponent.new(form: @anamnesis, current_step: 1, total_steps: 5) do |c| %>
-    <% c.step(title: "Dados Pessoais", description: "Vamos começar com algumas informações básicas para personalizar seu plano nutricional.", step_number: 1) do %>
-      <!-- Conteúdo do formulário do passo 1 -->
-    <% end %>
+```ruby
+# app/services/mercado_pago_service.rb
+class MercadoPagoService
+  def initialize
+    @sdk = MercadoPago::SDK.new(Rails.application.credentials.mercado_pago[:access_token])
+  end
+  
+  def create_subscription(user, plan_type)
+    # Configuração do plano baseado no tipo
+    plan_config = subscription_plans[plan_type.to_sym]
     
-    <% c.step(title: "Saúde e Hábitos", description: "...", step_number: 2) do %>
-      <!-- Conteúdo do passo 2 -->
-    <% end %>
+    # Criação da assinatura no Mercado Pago
+    preference = {
+      payer_email: user.email,
+      external_reference: "user_#{user.id}",
+      auto_recurring: {
+        frequency: plan_config[:frequency],
+        frequency_type: plan_config[:frequency_type],
+        transaction_amount: plan_config[:amount],
+        currency_id: "BRL"
+      },
+      back_urls: {
+        success: Rails.application.routes.url_helpers.subscription_success_url,
+        failure: Rails.application.routes.url_helpers.subscription_failure_url
+      },
+      notification_url: Rails.application.routes.url_helpers.webhooks_mercado_pago_url
+    }
     
-    <!-- Outras etapas... -->
-  <% end %>
-<% end %>
+    response = @sdk.subscription.create(preference)
+    
+    if response["status"] == 201
+      # Criar assinatura no sistema
+      subscription = user.subscriptions.create!(
+        plan_type: plan_type,
+        status: :active,
+        start_date: Time.current,
+        mp_subscription_id: response["id"],
+        amount: plan_config[:amount]
+      )
+      
+      return { success: true, subscription: subscription }
+    else
+      return { success: false, errors: response["message"] }
+    end
+  end
+  
+  def process_credit_purchase(user, credit_amount)
+    # Configuração da compra de créditos
+    unit_price = credit_price(credit_amount)
+    
+    preference = {
+      items: [{
+        title: "#{credit_amount} créditos para planos alimentares",
+        quantity: 1,
+        unit_price: unit_price,
+        currency_id: "BRL"
+      }],
+      payer: {
+        email: user.email
+      },
+      external_reference: "credits_user_#{user.id}_amount_#{credit_amount}",
+      back_urls: {
+        success: Rails.application.routes.url_helpers.credit_purchase_success_url,
+        failure: Rails.application.routes.url_helpers.credit_purchase_failure_url
+      },
+      notification_url: Rails.application.routes.url_helpers.webhooks_mercado_pago_url
+    }
+    
+    response = @sdk.preference.create(preference)
+    
+    if response["status"] == 201
+      # Registrar a intenção de compra
+      payment = user.payments.create!(
+        amount: unit_price,
+        status: :pending,
+        payment_type: :credit_purchase,
+        mp_payment_id: response["id"]
+      )
+      
+      return { success: true, payment: payment, init_point: response["init_point"] }
+    else
+      return { success: false, errors: response["message"] }
+    end
+  end
+  
+  def handle_webhook(topic, id)
+    case topic
+    when "payment"
+      payment_info = @sdk.payment.get(id)
+      process_payment_notification(payment_info)
+    when "subscription"
+      subscription_info = @sdk.subscription.get(id)
+      process_subscription_notification(subscription_info)
+    end
+  end
+  
+  private
+  
+  def subscription_plans
+    {
+      monthly: { frequency: 1, frequency_type: "months", amount: 49.90 },
+      quarterly: { frequency: 3, frequency_type: "months", amount: 129.90 },
+      annual: { frequency: 12, frequency_type: "months", amount: 479.90 }
+    }
+  end
+  
+  def credit_price(amount)
+    case amount
+    when 1
+      19.90
+    when 5
+      89.90
+    when 10
+      169.90
+    else
+      19.90 * amount # Preço unitário para quantidades personalizadas
+    end
+  end
+  
+  def process_payment_notification(payment_info)
+    # Implementação do processamento de notificações de pagamento
+  end
+  
+  def process_subscription_notification(subscription_info)
+    # Implementação do processamento de notificações de assinatura
+  end
+end
 ```
 
 ## 10. Cronograma de Implementação Sugerido
