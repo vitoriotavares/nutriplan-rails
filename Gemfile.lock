@@ -181,7 +181,7 @@ GEM
       net-smtp
     marcel (1.0.4)
     matrix (0.4.2)
-    mercadopago-sdk (2.1.0)
+    mercadopago-sdk (2.3.0)
       json (~> 2.5)
       rest-client (~> 2.1)
     method_source (1.1.0)
@@ -447,7 +447,7 @@ DEPENDENCIES
   jbuilder
   jsbundling-rails
   kamal
-  mercadopago-sdk (~> 2.1.0)
+  mercadopago-sdk (~> 2.3.0)
   pg (~> 1.1)
   prawn (~> 2.4)
   prawn-table (~> 0.2.2)

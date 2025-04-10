@@ -56,7 +56,7 @@ gem "pundit", "~> 2.3"
 gem "ruby-openai", "~> 6.3"
 
 # Pagamentos
-gem 'mercadopago-sdk', '~> 2.1.0'
+gem 'mercadopago-sdk', '~> 2.3.0'
 
 # Gem para geração de sitemap
 gem 'sitemap_generator'
