@@ -53,7 +53,7 @@ gem "view_component", "~> 3.11"
 gem "pundit", "~> 2.3"
 
 # OpenAI API
-gem "ruby-openai", "~> 6.3"
+gem "ruby-openai", "~> 8.1"
 
 # Pagamentos
 gem 'mercadopago-sdk', '~> 2.1.0'
