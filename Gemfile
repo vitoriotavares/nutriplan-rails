@@ -91,4 +91,4 @@ end
 
 gem "dockerfile-rails", ">= 1.7", group: :development
 
-gem "rqrcode", "~> 2.2"
+gem "rqrcode", "~> 3.1"
