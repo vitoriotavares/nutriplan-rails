@@ -97,7 +97,7 @@ GEM
       xpath (~> 3.2)
     chunky_png (1.4.0)
     concurrent-ruby (1.3.5)
-    connection_pool (2.5.0)
+    connection_pool (2.5.3)
     crass (1.0.6)
     cssbundling-rails (1.4.3)
       railties (>= 6.0.0)
@@ -112,7 +112,7 @@ GEM
     dotenv-rails (3.1.7)
       dotenv (= 3.1.7)
       railties (>= 6.1)
-    drb (2.2.1)
+    drb (2.2.3)
     ed25519 (1.3.0)
     erubi (1.13.1)
     et-orbi (1.2.11)
@@ -405,9 +405,9 @@ GEM
     unicode-emoji (4.0.4)
     uri (1.0.3)
     useragent (0.16.11)
-    view_component (3.21.0)
+    view_component (3.23.0)
       activesupport (>= 5.2.0, < 8.1)
-      concurrent-ruby (~> 1.0)
+      concurrent-ruby (~> 1)
       method_source (~> 1.0)
     web-console (4.2.1)
       actionview (>= 6.0.0)
@@ -468,7 +468,7 @@ DEPENDENCIES
   thruster
   turbo-rails
   tzinfo-data
-  view_component (~> 3.11)
+  view_component (~> 3.23)
   web-console
 
 BUNDLED WITH
