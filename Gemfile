@@ -47,7 +47,7 @@ gem "prawn", "~> 2.4"
 gem "prawn-table", "~> 0.2.2"
 
 # View components
-gem "view_component", "~> 3.11"
+gem "view_component", "~> 3.23"
 
 # Authorization
 gem "pundit", "~> 2.3"
